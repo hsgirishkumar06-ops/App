@@ -1,20 +1,60 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from "react";
+import { View } from "react-native";
+import { StatusBar } from "expo-status-bar";
 
-export default function App() {
+import OnboardingScreen from "./src/screen/OnboardingScreen";
+import LoginScreen from "./src/screen/LoginScreen";
+import SignUpScreen from "./src/screen/SignUpScreen";
+
+type Screen =
+  | "onboarding"
+  | "login"
+  | "signup";
+
+function App() {
+  const [screen, setScreen] =
+    useState<Screen>("onboarding");
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+
+      {screen === "onboarding" && (
+        <OnboardingScreen
+          goToLogin={() =>
+            setScreen("login")
+          }
+        />
+      )}
+
+      {screen === "login" && (
+        <LoginScreen
+          goToSignUp={() =>
+            setScreen("signup")
+          }
+          goToOnboarding={() =>
+            setScreen("onboarding")
+          }
+        />
+      )}
+
+      {screen === "signup" && (
+        <SignUpScreen
+          goToLogin={() =>
+            setScreen("login")
+          }
+        />
+      )}
+
       <StatusBar style="auto" />
+
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const styles = {
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-});
+};
+
+export default App;
