@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import * as Notifications from "expo-notifications";
 
 import OnboardingScreen from "./src/screen/OnboardingScreen";
 import LoginScreen from "./src/screen/LoginScreen";
@@ -9,17 +8,8 @@ import SignUpScreen from "./src/screen/SignUpScreen";
 
 import {
   registerForPushNotificationsAsync,
+  startNotificationListeners,
 } from "./src/services/notification";
-
-// Notification display settings
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
 
 type Screen = "onboarding" | "login" | "signup";
 
@@ -28,35 +18,16 @@ function App() {
     useState<Screen>("onboarding");
 
   useEffect(() => {
-    // Register for Expo Push Notifications
+    // Register device for push notifications
     registerForPushNotificationsAsync();
 
-    // Listen when notification is received
-    const notificationListener =
-      Notifications.addNotificationReceivedListener(
-        (notification) => {
-          console.log(
-            "Notification received:",
-            notification
-          );
-        }
-      );
+    // Start notification listeners
+    const removeNotificationListeners =
+      startNotificationListeners();
 
-    // Listen when user taps notification
-    const responseListener =
-      Notifications.addNotificationResponseReceivedListener(
-        (response) => {
-          console.log(
-            "Notification tapped:",
-            response
-          );
-        }
-      );
-
-    // Cleanup listeners
+    // Remove listeners when App is unmounted
     return () => {
-      notificationListener.remove();
-      responseListener.remove();
+      removeNotificationListeners();
     };
   }, []);
 
@@ -66,18 +37,14 @@ function App() {
       {/* ONBOARDING */}
       {screen === "onboarding" && (
         <OnboardingScreen
-          goToLogin={() =>
-            setScreen("login")
-          }
+          goToLogin={() => setScreen("login")}
         />
       )}
 
       {/* LOGIN */}
       {screen === "login" && (
         <LoginScreen
-          goToSignUp={() =>
-            setScreen("signup")
-          }
+          goToSignUp={() => setScreen("signup")}
           goToOnboarding={() =>
             setScreen("onboarding")
           }
@@ -87,9 +54,7 @@ function App() {
       {/* SIGN UP */}
       {screen === "signup" && (
         <SignUpScreen
-          goToLogin={() =>
-            setScreen("login")
-          }
+          goToLogin={() => setScreen("login")}
         />
       )}
 
