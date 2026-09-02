@@ -1,436 +1,298 @@
 import React, { useState } from "react";
 import {
-  SafeAreaView,
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  ScrollView,
+  Alert,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
-import { Ionicons } from "@expo/vector-icons";
 
 import CustomInput from "../components/CustomInput";
 import PasswordInput from "../components/PasswordInput";
 import CustomButton from "../components/CustomButton";
-import BackButton from "../components/BackButton";
-import SuccessModal from "../components/SuccessModal";
-
 import colors from "../theme/theme";
 
 type Props = {
   goToSignUp: () => void;
   goToOnboarding: () => void;
+  goToHome: () => void;
 };
 
-function LoginScreen({
+export default function LoginScreen({
   goToSignUp,
   goToOnboarding,
+  goToHome,
 }: Props) {
   const [email, setEmail] = useState("");
-  const [password, setPassword] =
-    useState("");
-  const [remember, setRemember] =
-    useState(false);
+  const [password, setPassword] = useState("");
 
-  const [emailError, setEmailError] =
-    useState("");
-  const [passwordError, setPasswordError] =
-    useState("");
-
-  const [showSuccess, setShowSuccess] =
-    useState(false);
-
-  const validateEmail = (
-    value: string
-  ) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-      value
-    );
-  };
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const handleLogin = () => {
-    let valid = true;
+    let isValid = true;
 
     setEmailError("");
     setPasswordError("");
 
+    // Email validation
     if (!email.trim()) {
-      setEmailError(
-        "Email is required"
-      );
-      valid = false;
+      setEmailError("Email is required");
+      isValid = false;
     } else if (
-      !validateEmail(email.trim())
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        email.trim()
+      )
     ) {
-      setEmailError(
-        "Enter a valid email address"
-      );
-      valid = false;
+      setEmailError("Enter a valid email");
+      isValid = false;
     }
 
+    // Password validation
     if (!password.trim()) {
+      setPasswordError("Password is required");
+      isValid = false;
+    } else if (password.length < 6) {
       setPasswordError(
-        "Password is required"
+        "Password must be at least 6 characters"
       );
-      valid = false;
-    } else if (
-      password.length < 8
-    ) {
-      setPasswordError(
-        "Password must be at least 8 characters"
-      );
-      valid = false;
+      isValid = false;
     }
 
-    if (valid) {
-      setShowSuccess(true);
+    if (!isValid) {
+      return;
     }
+
+    // Login successful
+    Alert.alert(
+      "Login Successful",
+      "Welcome back!",
+      [
+        {
+          text: "Continue",
+          onPress: () => {
+            goToHome();
+          },
+        },
+      ]
+    );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-
+    <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.container}
         behavior={
           Platform.OS === "ios"
             ? "padding"
             : undefined
         }
       >
-
         <ScrollView
-          contentContainerStyle={
-            styles.scroll
-          }
-          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
         >
+          {/* Back Button */}
 
-          <View style={styles.content}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={goToOnboarding}
+          >
+            <Text style={styles.backText}>
+              ←
+            </Text>
+          </TouchableOpacity>
 
-            <BackButton
-              onPress={goToOnboarding}
-            />
+          {/* Header */}
 
-            <Image
-              source={require("../../assets//logo.png")}
-              style={styles.logo}
-            />
-
-            <Text style={styles.heading}>
-              Login to Your Account
+          <View style={styles.header}>
+            <Text style={styles.title}>
+              Welcome Back
             </Text>
 
-            {/* EMAIL */}
-            <View style={styles.field}>
-
-              <CustomInput
-                icon="mail-outline"
-                placeholder="Email"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  setEmailError("");
-                }}
-                keyboardType="email-address"
-                error={!!emailError}
-              />
-
-              {emailError ? (
-                <Text style={styles.error}>
-                  {emailError}
-                </Text>
-              ) : null}
-
-            </View>
-
-            {/* PASSWORD */}
-            <View style={styles.field}>
-
-              <PasswordInput
-                placeholder="Password"
-                value={password}
-                onChangeText={(text) => {
-                  setPassword(text);
-                  setPasswordError("");
-                }}
-                error={!!passwordError}
-              />
-
-              {passwordError ? (
-                <Text style={styles.error}>
-                  {passwordError}
-                </Text>
-              ) : null}
-
-            </View>
-
-            {/* REMEMBER ME */}
-            <TouchableOpacity
-              style={styles.remember}
-              onPress={() =>
-                setRemember(!remember)
-              }
-            >
-
-              <View
-                style={[
-                  styles.checkbox,
-                  remember &&
-                    styles.checked,
-                ]}
-              >
-                {remember && (
-                  <Ionicons
-                    name="checkmark"
-                    size={15}
-                    color={colors.white}
-                  />
-                )}
-              </View>
-
-              <Text
-                style={styles.rememberText}
-              >
-                Remember me
-              </Text>
-
-            </TouchableOpacity>
-
-            {/* SIGN IN */}
-            <CustomButton
-              title="Sign In"
-              onPress={handleLogin}
-            />
-
-            {/* FORGOT PASSWORD */}
-            <TouchableOpacity>
-              <Text style={styles.forgot}>
-                Forgot the password?
-              </Text>
-            </TouchableOpacity>
-
-            {/* DIVIDER */}
-            <View style={styles.divider}>
-
-              <View style={styles.line} />
-
-              <Text style={styles.or}>
-                or continue with
-              </Text>
-
-              <View style={styles.line} />
-
-            </View>
-
-            {/* SOCIAL BUTTONS */}
-            <View style={styles.socialRow}>
-
-              <TouchableOpacity
-                style={styles.social}
-              >
-                <Ionicons
-                  name="logo-google"
-                  size={24}
-                  color="#DB4437"
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.social}
-              >
-                <Ionicons
-                  name="logo-facebook"
-                  size={24}
-                  color="#1877F2"
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.social}
-              >
-                <Ionicons
-                  name="logo-apple"
-                  size={24}
-                  color={colors.black}
-                />
-              </TouchableOpacity>
-
-            </View>
-
-            {/* SIGN UP */}
-            <View style={styles.bottom}>
-
-              <Text style={styles.gray}>
-                Don't have an account?
-              </Text>
-
-              <TouchableOpacity
-                onPress={goToSignUp}
-              >
-                <Text style={styles.link}>
-                  {" "}Create Account
-                </Text>
-              </TouchableOpacity>
-
-            </View>
-
+            <Text style={styles.subtitle}>
+              Login to continue to your account
+            </Text>
           </View>
 
+          {/* Email */}
+
+          <View style={styles.inputContainer}>
+           <CustomInput
+  label="Email"
+  icon="mail-outline"
+  placeholder="Enter your email"
+  value={email}
+  onChangeText={(text) => {
+    setEmail(text);
+    setEmailError("");
+  }}
+  keyboardType="email-address"
+/>
+
+            {emailError ? (
+              <Text style={styles.errorText}>
+                {emailError}
+              </Text>
+            ) : null}
+          </View>
+
+          {/* Password */}
+
+          <View style={styles.inputContainer}>
+            <PasswordInput
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                setPasswordError("");
+              }}
+            />
+
+            {passwordError ? (
+              <Text style={styles.errorText}>
+                {passwordError}
+              </Text>
+            ) : null}
+          </View>
+
+          {/* Forgot Password */}
+
+          <TouchableOpacity
+            style={styles.forgotButton}
+          >
+            <Text style={styles.forgotText}>
+              Forgot Password?
+            </Text>
+          </TouchableOpacity>
+
+          {/* Login Button */}
+
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              title="Login"
+              onPress={handleLogin}
+            />
+          </View>
+
+          {/* Sign Up */}
+
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>
+              Don't have an account?
+            </Text>
+
+            <TouchableOpacity
+              onPress={goToSignUp}
+            >
+              <Text style={styles.signupLink}>
+                Sign Up
+              </Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
-
       </KeyboardAvoidingView>
-
-      {/* SUCCESS MODAL */}
-      <SuccessModal
-        visible={showSuccess}
-        title="Login Successful"
-        message="Welcome back to MediConnect!"
-        buttonText="OK"
-        onPress={() =>
-          setShowSuccess(false)
-        }
-      />
-
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: colors.white,
   },
 
-  scroll: {
-    flexGrow: 1,
-    paddingBottom: 30,
+  container: {
+    flex: 1,
   },
 
   content: {
-    width: "100%",
-    maxWidth: 430,
-    alignSelf: "center",
-    alignItems: "center",
+    flexGrow: 1,
     paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 30,
   },
 
-  logo: {
-    width: 65,
-    height: 65,
-    resizeMode: "contain",
-    marginTop: 5,
-    marginBottom: 8,
+  backButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.lightGray,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
-  heading: {
+  backText: {
     fontSize: 25,
+    color: colors.text,
+    marginTop: -2,
+  },
+
+  header: {
+    marginTop: 35,
+    marginBottom: 35,
+  },
+
+  title: {
+    fontSize: 28,
     fontWeight: "700",
-    color: "#111111",
-    textAlign: "center",
-    marginBottom: 24,
+    color: colors.darkBlue,
   },
 
-  field: {
-    width: "100%",
-    marginBottom: 10,
+  subtitle: {
+    fontSize: 14,
+    color: colors.gray,
+    marginTop: 8,
   },
 
-  error: {
+  inputContainer: {
+    marginBottom: 18,
+  },
+
+  errorText: {
     color: colors.error,
     fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
+    marginTop: 5,
   },
 
-  remember: {
-    width: "100%",
+  forgotButton: {
+    alignSelf: "flex-end",
+    marginTop: -4,
+    marginBottom: 25,
+  },
+
+  forgotText: {
+    color: colors.blue,
+    fontSize: 13,
+    fontWeight: "500",
+  },
+
+  buttonContainer: {
+    marginTop: 5,
+  },
+
+  signupContainer: {
     flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 25,
   },
 
-  checked: {
-    backgroundColor: colors.primary,
+  signupText: {
+    color: colors.gray,
+    fontSize: 13,
   },
 
-  rememberText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: "#333333",
-  },
-
-  forgot: {
-    color: colors.primary,
-    fontSize: 14,
+  signupLink: {
+    color: colors.blue,
+    fontSize: 13,
     fontWeight: "600",
-    marginTop: 16,
-  },
-
-  divider: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 22,
-  },
-
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E5E5E5",
-  },
-
-  or: {
-    color: "#777777",
-    fontSize: 13,
-    marginHorizontal: 10,
-  },
-
-  socialRow: {
-    flexDirection: "row",
-    gap: 14,
-  },
-
-  social: {
-    width: 72,
-    height: 48,
-    borderWidth: 1,
-    borderColor: "#E8E8E8",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  bottom: {
-    flexDirection: "row",
-    marginTop: 20,
-  },
-
-  gray: {
-    color: "#999999",
-    fontSize: 13,
-  },
-
-  link: {
-    color: colors.primary,
-    fontSize: 13,
-    fontWeight: "700",
+    marginLeft: 5,
   },
 });
-
-export default LoginScreen;

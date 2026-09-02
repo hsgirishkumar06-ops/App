@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import {
   View,
+  Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
@@ -10,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import colors from "../theme/theme";
 
 type Props = {
+  label?: string;
   placeholder: string;
   value: string;
   onChangeText: (text: string) => void;
@@ -17,6 +19,7 @@ type Props = {
 };
 
 function PasswordInput({
+  label,
   placeholder,
   value,
   onChangeText,
@@ -26,47 +29,67 @@ function PasswordInput({
     useState(false);
 
   return (
-    <View
-      style={[
-        styles.container,
-        error && styles.errorBorder,
-      ]}
-    >
-      <Ionicons
-        name="lock-closed-outline"
-        size={20}
-        color="#888888"
-      />
+    <View style={styles.wrapper}>
+      {label && (
+        <Text style={styles.label}>
+          {label}
+        </Text>
+      )}
 
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        placeholderTextColor="#AAAAAA"
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={!showPassword}
-      />
-
-      <TouchableOpacity
-        onPress={() =>
-          setShowPassword(!showPassword)
-        }
+      <View
+        style={[
+          styles.container,
+          error && styles.errorBorder,
+        ]}
       >
         <Ionicons
-          name={
-            showPassword
-              ? "eye-outline"
-              : "eye-off-outline"
-          }
+          name="lock-closed-outline"
           size={20}
           color="#888888"
         />
-      </TouchableOpacity>
+
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          placeholderTextColor="#AAAAAA"
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={!showPassword}
+          autoCapitalize="none"
+        />
+
+        <TouchableOpacity
+          onPress={() =>
+            setShowPassword(!showPassword)
+          }
+        >
+          <Ionicons
+            name={
+              showPassword
+                ? "eye-outline"
+                : "eye-off-outline"
+            }
+            size={20}
+            color="#888888"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    width: "100%",
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text,
+    marginBottom: 8,
+  },
+
   container: {
     width: "100%",
     height: 52,

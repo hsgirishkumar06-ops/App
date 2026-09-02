@@ -5,13 +5,18 @@ import { StatusBar } from "expo-status-bar";
 import OnboardingScreen from "./src/screen/OnboardingScreen";
 import LoginScreen from "./src/screen/LoginScreen";
 import SignUpScreen from "./src/screen/SignUpScreen";
+import HomeScreen from "./src/screen/HomeScreen";
 
 import {
   registerForPushNotificationsAsync,
   startNotificationListeners,
 } from "./src/services/notification";
 
-type Screen = "onboarding" | "login" | "signup";
+type Screen =
+  | "onboarding"
+  | "login"
+  | "signup"
+  | "home";
 
 function App() {
   const [screen, setScreen] =
@@ -25,7 +30,7 @@ function App() {
     const removeNotificationListeners =
       startNotificationListeners();
 
-    // Remove listeners when App is unmounted
+    // Cleanup notification listeners
     return () => {
       removeNotificationListeners();
     };
@@ -37,16 +42,23 @@ function App() {
       {/* ONBOARDING */}
       {screen === "onboarding" && (
         <OnboardingScreen
-          goToLogin={() => setScreen("login")}
+          goToLogin={() =>
+            setScreen("login")
+          }
         />
       )}
 
       {/* LOGIN */}
       {screen === "login" && (
         <LoginScreen
-          goToSignUp={() => setScreen("signup")}
+          goToSignUp={() =>
+            setScreen("signup")
+          }
           goToOnboarding={() =>
             setScreen("onboarding")
+          }
+          goToHome={() =>
+            setScreen("home")
           }
         />
       )}
@@ -54,7 +66,21 @@ function App() {
       {/* SIGN UP */}
       {screen === "signup" && (
         <SignUpScreen
-          goToLogin={() => setScreen("login")}
+          goToLogin={() =>
+            setScreen("login")
+          }
+        />
+      )}
+
+      {/* HOME */}
+      {screen === "home" && (
+        <HomeScreen
+          onTabPress={(tab) => {
+            console.log(
+              "Selected tab:",
+              tab
+            );
+          }}
         />
       )}
 

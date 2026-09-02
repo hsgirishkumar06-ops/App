@@ -1,6 +1,7 @@
 import React from "react";
 import {
   View,
+  Text,
   TextInput,
   StyleSheet,
   KeyboardTypeOptions,
@@ -10,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 import colors from "../theme/theme";
 
 type Props = {
+  label?: string;
   icon: keyof typeof Ionicons.glyphMap;
   placeholder: string;
   value: string;
@@ -19,6 +21,7 @@ type Props = {
 };
 
 function CustomInput({
+  label,
   icon,
   placeholder,
   value,
@@ -27,32 +30,51 @@ function CustomInput({
   error = false,
 }: Props) {
   return (
-    <View
-      style={[
-        styles.container,
-        error && styles.errorBorder,
-      ]}
-    >
-      <Ionicons
-        name={icon}
-        size={20}
-        color="#888888"
-      />
+    <View style={styles.wrapper}>
+      {label && (
+        <Text style={styles.label}>
+          {label}
+        </Text>
+      )}
 
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        placeholderTextColor="#AAAAAA"
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType}
-        autoCapitalize="none"
-      />
+      <View
+        style={[
+          styles.container,
+          error && styles.errorBorder,
+        ]}
+      >
+        <Ionicons
+          name={icon}
+          size={20}
+          color="#888888"
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          placeholderTextColor="#AAAAAA"
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType}
+          autoCapitalize="none"
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    width: "100%",
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.text,
+    marginBottom: 8,
+  },
+
   container: {
     width: "100%",
     height: 52,
