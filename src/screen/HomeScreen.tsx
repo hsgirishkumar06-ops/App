@@ -14,28 +14,17 @@ import ScheduleCard from "../components/ScheduleCard";
 import SpecialtyList from "../components/SpecialtyList";
 import HospitalList from "../components/HospitalList";
 import TopDoctors from "../components/TopDoctors";
-import HomeBottomNav from "../components/HomeBottomNav";
 
 import colors from "../theme/theme";
 
-type Props = {
-  onTabPress?: (tab: string) => void;
-  goToOnboarding?: () => void;
-};
-
-export default function HomeScreen({
-  onTabPress,
-  goToOnboarding,
-}: Props) {
+export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.content}
         >
-
           {/* Header */}
           <HomeHeader />
 
@@ -70,14 +59,7 @@ export default function HomeScreen({
           />
 
           <TopDoctors />
-
         </ScrollView>
-
-        {/* Bottom Navigation */}
-        <HomeBottomNav
-          onTabPress={onTabPress}
-        />
-
       </View>
     </SafeAreaView>
   );
@@ -101,7 +83,7 @@ const styles = StyleSheet.create({
     paddingTop:
       (StatusBar.currentHeight || 0) + 8,
 
-    // Space for bottom navigation
-    paddingBottom: 85,
+    // Space at the bottom of the scroll content
+    paddingBottom: 20,
   },
 });

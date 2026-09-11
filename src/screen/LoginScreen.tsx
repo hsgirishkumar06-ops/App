@@ -20,12 +20,14 @@ type Props = {
   goToSignUp: () => void;
   goToOnboarding: () => void;
   goToHome: () => void;
+  goToForgotPassword: () => void;
 };
 
 export default function LoginScreen({
   goToSignUp,
   goToOnboarding,
   goToHome,
+  goToForgotPassword,
 }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -123,17 +125,17 @@ export default function LoginScreen({
           {/* Email */}
 
           <View style={styles.inputContainer}>
-           <CustomInput
-  label="Email"
-  icon="mail-outline"
-  placeholder="Enter your email"
-  value={email}
-  onChangeText={(text) => {
-    setEmail(text);
-    setEmailError("");
-  }}
-  keyboardType="email-address"
-/>
+            <CustomInput
+              label="Email"
+              icon="mail-outline"
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={(text) => {
+                setEmail(text);
+                setEmailError("");
+              }}
+              keyboardType="email-address"
+            />
 
             {emailError ? (
               <Text style={styles.errorText}>
@@ -166,6 +168,7 @@ export default function LoginScreen({
 
           <TouchableOpacity
             style={styles.forgotButton}
+            onPress={goToForgotPassword}
           >
             <Text style={styles.forgotText}>
               Forgot Password?

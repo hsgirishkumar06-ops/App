@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 
 import OnboardingScreen from "./src/screen/OnboardingScreen";
 import LoginScreen from "./src/screen/LoginScreen";
 import SignUpScreen from "./src/screen/SignUpScreen";
-import HomeScreen from "./src/screen/HomeScreen";
+import ForgotPasswordScreen from "./src/screen/ForgotPasswordScreen";
+import OTPScreen from "./src/screen/OTPScreen";
+import NewPasswordScreen from "./src/screen/NewPasswordScreen";
+
+import BottomTabNavigation from "./src/navigation/BottomTabNavigation";
 
 import {
   registerForPushNotificationsAsync,
@@ -16,21 +20,24 @@ type Screen =
   | "onboarding"
   | "login"
   | "signup"
-  | "home";
+  | "forgotPassword"
+  | "otp"
+  | "newPassword"
+  | "main";
 
 function App() {
   const [screen, setScreen] =
     useState<Screen>("onboarding");
 
+  const [resetEmail, setResetEmail] =
+    useState("");
+
   useEffect(() => {
-    // Register device for push notifications
     registerForPushNotificationsAsync();
 
-    // Start notification listeners
     const removeNotificationListeners =
       startNotificationListeners();
 
-    // Cleanup notification listeners
     return () => {
       removeNotificationListeners();
     };
@@ -40,6 +47,7 @@ function App() {
     <View style={styles.container}>
 
       {/* ONBOARDING */}
+
       {screen === "onboarding" && (
         <OnboardingScreen
           goToLogin={() =>
@@ -49,6 +57,7 @@ function App() {
       )}
 
       {/* LOGIN */}
+
       {screen === "login" && (
         <LoginScreen
           goToSignUp={() =>
@@ -58,12 +67,16 @@ function App() {
             setScreen("onboarding")
           }
           goToHome={() =>
-            setScreen("home")
+            setScreen("main")
+          }
+          goToForgotPassword={() =>
+            setScreen("forgotPassword")
           }
         />
       )}
 
       {/* SIGN UP */}
+
       {screen === "signup" && (
         <SignUpScreen
           goToLogin={() =>
@@ -72,20 +85,51 @@ function App() {
         />
       )}
 
-      {/* HOME */}
-      {screen === "home" && (
-        <HomeScreen
-          onTabPress={(tab) => {
-            console.log(
-              "Selected tab:",
-              tab
-            );
+      {/* FORGOT PASSWORD */}
+
+      {screen === "forgotPassword" && (
+        <ForgotPasswordScreen
+          goToLogin={() =>
+            setScreen("login")
+          }
+          goToOTP={(email) => {
+            setResetEmail(email);
+            setScreen("otp");
           }}
         />
       )}
 
-      <StatusBar style="auto" />
+      {/* OTP */}
 
+      {screen === "otp" && (
+        <OTPScreen
+          email={resetEmail}
+          goBack={() =>
+            setScreen("forgotPassword")
+          }
+          goToNewPassword={() =>
+            setScreen("newPassword")
+          }
+        />
+      )}
+
+      {/* NEW PASSWORD */}
+
+      {screen === "newPassword" && (
+        <NewPasswordScreen
+          goToLogin={() =>
+            setScreen("login")
+          }
+        />
+      )}
+
+      {/* MAIN APP */}
+
+      {screen === "main" && (
+        <BottomTabNavigation />
+      )}
+
+      <StatusBar style="auto" />
     </View>
   );
 }
