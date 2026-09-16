@@ -16,14 +16,23 @@ type Tab =
   | "chat"
   | "profile";
 
-export default function BottomTabNavigation() {
+type Props = {
+  goToLogin: () => void;
+};
+
+export default function BottomTabNavigation({
+  goToLogin,
+}: Props) {
   const [activeTab, setActiveTab] =
     useState<Tab>("home");
 
   return (
     <View style={styles.container}>
-      <View style={styles.screen}>
-        {activeTab === "home" && <HomeScreen />}
+      <View style={styles.screenContainer}>
+
+        {activeTab === "home" && (
+          <HomeScreen />
+        )}
 
         {activeTab === "explore" && (
           <ExploreScreen />
@@ -38,13 +47,18 @@ export default function BottomTabNavigation() {
         )}
 
         {activeTab === "profile" && (
-          <ProfileScreen />
+          <ProfileScreen
+            goToLogin={goToLogin}
+          />
         )}
+
       </View>
 
       <BottomTabBar
         activeTab={activeTab}
-        onTabPress={setActiveTab}
+        onTabPress={(tab) => {
+          setActiveTab(tab);
+        }}
       />
     </View>
   );
@@ -56,7 +70,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
 
-  screen: {
+  screenContainer: {
     flex: 1,
   },
 });

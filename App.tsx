@@ -32,6 +32,10 @@ function App() {
   const [resetEmail, setResetEmail] =
     useState("");
 
+  // ========================================
+  // NOTIFICATION INITIALIZATION
+  // ========================================
+
   useEffect(() => {
     registerForPushNotificationsAsync();
 
@@ -43,55 +47,67 @@ function App() {
     };
   }, []);
 
+  // ========================================
+  // APP SCREEN
+  // ========================================
+
   return (
     <View style={styles.container}>
 
-      {/* ONBOARDING */}
+      {/* ========================================
+          ONBOARDING
+      ======================================== */}
 
       {screen === "onboarding" && (
         <OnboardingScreen
-          goToLogin={() =>
-            setScreen("login")
-          }
+          goToLogin={() => {
+            setScreen("login");
+          }}
         />
       )}
 
-      {/* LOGIN */}
+      {/* ========================================
+          LOGIN
+      ======================================== */}
 
       {screen === "login" && (
         <LoginScreen
-          goToSignUp={() =>
-            setScreen("signup")
-          }
-          goToOnboarding={() =>
-            setScreen("onboarding")
-          }
-          goToHome={() =>
-            setScreen("main")
-          }
-          goToForgotPassword={() =>
-            setScreen("forgotPassword")
-          }
+          goToSignUp={() => {
+            setScreen("signup");
+          }}
+          goToOnboarding={() => {
+            setScreen("onboarding");
+          }}
+          goToHome={() => {
+            setScreen("main");
+          }}
+          goToForgotPassword={() => {
+            setScreen("forgotPassword");
+          }}
         />
       )}
 
-      {/* SIGN UP */}
+      {/* ========================================
+          SIGN UP
+      ======================================== */}
 
       {screen === "signup" && (
         <SignUpScreen
-          goToLogin={() =>
-            setScreen("login")
-          }
+          goToLogin={() => {
+            setScreen("login");
+          }}
         />
       )}
 
-      {/* FORGOT PASSWORD */}
+      {/* ========================================
+          FORGOT PASSWORD
+      ======================================== */}
 
       {screen === "forgotPassword" && (
         <ForgotPasswordScreen
-          goToLogin={() =>
-            setScreen("login")
-          }
+          goToLogin={() => {
+            setScreen("login");
+          }}
           goToOTP={(email) => {
             setResetEmail(email);
             setScreen("otp");
@@ -99,40 +115,59 @@ function App() {
         />
       )}
 
-      {/* OTP */}
+      {/* ========================================
+          OTP
+      ======================================== */}
 
       {screen === "otp" && (
         <OTPScreen
           email={resetEmail}
-          goBack={() =>
-            setScreen("forgotPassword")
-          }
-          goToNewPassword={() =>
-            setScreen("newPassword")
-          }
+          goBack={() => {
+            setScreen("forgotPassword");
+          }}
+          goToNewPassword={() => {
+            setScreen("newPassword");
+          }}
         />
       )}
 
-      {/* NEW PASSWORD */}
+      {/* ========================================
+          NEW PASSWORD
+      ======================================== */}
 
       {screen === "newPassword" && (
         <NewPasswordScreen
-          goToLogin={() =>
-            setScreen("login")
-          }
+          goToLogin={() => {
+            setScreen("login");
+          }}
         />
       )}
 
-      {/* MAIN APP */}
+      {/* ========================================
+          MAIN APPLICATION
+      ======================================== */}
 
       {screen === "main" && (
-        <BottomTabNavigation />
+        <BottomTabNavigation
+          goToLogin={() => {
+            setScreen("login");
+          }}
+        />
       )}
 
+      {/* ========================================
+          STATUS BAR
+      ======================================== */}
+
       <StatusBar style="auto" />
+
     </View>
   );
 }
+
+// ========================================
+// STYLES
+// ========================================
 
 const styles = StyleSheet.create({
   container: {
