@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   StyleSheet,
   Text,
@@ -6,45 +7,40 @@ import {
   View,
 } from "react-native";
 
+import { Ionicons } from "@expo/vector-icons";
+
 import colors from "../theme/theme";
 
-type Tab =
-  | "home"
-  | "explore"
-  | "bookings"
-  | "chat"
-  | "profile";
-
 type Props = {
- activeTab: Tab;
-  onTabPress: (tab: Tab) => void;
+  activeTab: string;
+  onTabPress: (tab: string) => void;
 };
 
 const tabs = [
   {
-    name: "home" as Tab,
+    key: "home",
     label: "Home",
-    icon: "⌂",
+    icon: "home",
   },
   {
-    name: "explore" as Tab,
+    key: "explore",
     label: "Explore",
-    icon: "⌕",
+    icon: "compass-outline",
   },
   {
-    name: "bookings" as Tab,
+    key: "bookings",
     label: "Bookings",
-    icon: "▣",
+    icon: "calendar",
   },
   {
-    name: "chat" as Tab,
+    key: "chat",
     label: "Chat",
-    icon: "◯",
+    icon: "chatbubble-ellipses-outline",
   },
   {
-    name: "profile" as Tab,
+    key: "profile",
     label: "Profile",
-    icon: "♙",
+    icon: "person-outline",
   },
 ];
 
@@ -55,31 +51,33 @@ export default function BottomTabBar({
   return (
     <View style={styles.container}>
       {tabs.map((tab) => {
-        const isActive =
-          activeTab === tab.name;
+        const active =
+          activeTab === tab.key;
 
         return (
           <TouchableOpacity
-            key={tab.name}
+            key={tab.key}
             style={styles.tab}
-            onPress={() =>
-              onTabPress(tab.name)
-            }
+            onPress={() => {
+              onTabPress(tab.key);
+            }}
             activeOpacity={0.7}
           >
-            <Text
-              style={[
-                styles.icon,
-                isActive && styles.activeIcon,
-              ]}
-            >
-              {tab.icon}
-            </Text>
+            <Ionicons
+              name={tab.icon as any}
+              size={20}
+              color={
+                active
+                  ? colors.blue
+                  : colors.gray
+              }
+            />
 
             <Text
               style={[
                 styles.label,
-                isActive && styles.activeLabel,
+                active &&
+                  styles.activeLabel,
               ]}
             >
               {tab.label}
@@ -93,40 +91,48 @@ export default function BottomTabBar({
 
 const styles = StyleSheet.create({
   container: {
-    height: 72,
-    backgroundColor: colors.white,
+    height: 60,
+
+    backgroundColor:
+      colors.white,
+
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+
+    borderTopColor:
+      colors.border,
+
     flexDirection: "row",
+
+    justifyContent:
+      "space-around",
+
     alignItems: "center",
-    justifyContent: "space-around",
-    paddingHorizontal: 8,
-    paddingBottom: 5,
+
+    paddingBottom: 4,
+
+    elevation: 8,
   },
 
   tab: {
     flex: 1,
+
     alignItems: "center",
-    justifyContent: "center",
-  },
 
-  icon: {
-    fontSize: 24,
-    color: colors.gray,
-    marginBottom: 3,
-  },
-
-  activeIcon: {
-    color: colors.primary,
+    justifyContent:
+      "center",
   },
 
   label: {
-    fontSize: 11,
+    fontSize: 8,
+
     color: colors.gray,
+
+    marginTop: 4,
   },
 
   activeLabel: {
-    color: colors.primary,
+    color: colors.blue,
+
     fontWeight: "600",
   },
 });

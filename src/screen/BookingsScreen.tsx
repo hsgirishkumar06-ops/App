@@ -20,12 +20,30 @@ type Booking = {
   hospital: string;
   date: string;
   time: string;
-  completed: boolean;
+  status: "upcoming" | "completed";
 };
 
-export default function BookingsScreen() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [showModal, setShowModal] = useState(false);
+type Props = {
+  goToConsultation: () => void;
+};
+
+export default function BookingsScreen({
+  goToConsultation,
+}: Props) {
+  const [bookings, setBookings] = useState<Booking[]>([
+    {
+      id: 1,
+      doctor: "girish",
+      specialty: "density",
+      hospital: "kmch",
+      date: "18/9/2026",
+      time: "5:30",
+      status: "upcoming",
+    },
+  ]);
+
+  const [modalVisible, setModalVisible] =
+    useState(false);
 
   const [doctor, setDoctor] = useState("");
   const [specialty, setSpecialty] = useState("");
@@ -33,58 +51,73 @@ export default function BookingsScreen() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
 
-  const upcoming = bookings.filter(
-    (item) => !item.completed
+  const upcomingBookings = bookings.filter(
+    (booking) =>
+      booking.status === "upcoming"
   );
 
-  const past = bookings.filter(
-    (item) => item.completed
+  const pastBookings = bookings.filter(
+    (booking) =>
+      booking.status === "completed"
   );
 
-  const addBooking = () => {
+  const clearForm = () => {
+    setDoctor("");
+    setSpecialty("");
+    setHospital("");
+    setDate("");
+    setTime("");
+  };
+
+  const openBookingForm = () => {
+    clearForm();
+    setModalVisible(true);
+  };
+
+  const closeBookingForm = () => {
+    setModalVisible(false);
+    clearForm();
+  };
+
+  const bookAppointment = () => {
     if (
-      !doctor.trim() ||
-      !specialty.trim() ||
-      !hospital.trim() ||
-      !date.trim() ||
-      !time.trim()
+      doctor.trim() === "" ||
+      specialty.trim() === "" ||
+      hospital.trim() === "" ||
+      date.trim() === "" ||
+      time.trim() === ""
     ) {
       Alert.alert(
         "Missing Details",
-        "Please fill all fields."
+        "Please enter all appointment details."
       );
       return;
     }
 
-    const newBooking: Booking = {
+    const newAppointment: Booking = {
       id: Date.now(),
       doctor: doctor.trim(),
       specialty: specialty.trim(),
       hospital: hospital.trim(),
       date: date.trim(),
       time: time.trim(),
-      completed: false,
+      status: "upcoming",
     };
 
     setBookings((current) => [
       ...current,
-      newBooking,
+      newAppointment,
     ]);
 
-    setDoctor("");
-    setSpecialty("");
-    setHospital("");
-    setDate("");
-    setTime("");
-    setShowModal(false);
+    closeBookingForm();
 
     Alert.alert(
-      "Success",
-      "Appointment booked successfully."
+      "Appointment Booked",
+      "Your appointment has been booked successfully."
     );
   };
 
-  const cancelBooking = (id: number) => {
+  const cancelAppointment = (id: number) => {
     Alert.alert(
       "Cancel Appointment",
       "Are you sure you want to cancel this appointment?",
@@ -99,7 +132,8 @@ export default function BookingsScreen() {
           onPress: () => {
             setBookings((current) =>
               current.filter(
-                (item) => item.id !== id
+                (booking) =>
+                  booking.id !== id
               )
             );
           },
@@ -108,89 +142,99 @@ export default function BookingsScreen() {
     );
   };
 
-  const completeBooking = (id: number) => {
+  const completeAppointment = (id: number) => {
     setBookings((current) =>
-      current.map((item) =>
-        item.id === id
-          ? { ...item, completed: true }
-          : item
+      current.map((booking) =>
+        booking.id === id
+          ? {
+              ...booking,
+              status: "completed",
+            }
+          : booking
       )
-    );
-
-    Alert.alert(
-      "Completed",
-      "Appointment moved to Past Appointments."
     );
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
+
+        {/* HEADER */}
+
         <Text style={styles.title}>
           My Bookings
         </Text>
 
         <Text style={styles.subtitle}>
-          Manage your appointments and upcoming consultations.
+          Manage your appointments and upcoming
+          consultations.
         </Text>
 
-        {/* Upcoming Appointments */}
+        {/* UPCOMING APPOINTMENTS */}
 
-        <View style={styles.card}>
-          <Text style={styles.badge}>
-            Upcoming
-          </Text>
+        <View style={styles.bookingCard}>
 
-          {upcoming.length === 0 ? (
-            <>
-              <Text style={styles.heading}>
-                Doctor Appointment
+          <View style={styles.upcomingBadge}>
+            <Text style={styles.upcomingText}>
+              Upcoming
+            </Text>
+          </View>
+
+          {upcomingBookings.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyTitle}>
+                No Upcoming Appointments
               </Text>
 
-              <Text style={styles.details}>
-                Your upcoming appointments will appear here.
+              <Text style={styles.emptyText}>
+                Book an appointment to see it here.
               </Text>
-
-              <View style={styles.divider} />
-
-              <Text style={styles.empty}>
-                No upcoming appointments
-              </Text>
-            </>
+            </View>
           ) : (
-            upcoming.map((item) => (
-              <View key={item.id}>
-                <Text style={styles.heading}>
-                  {item.doctor}
+            upcomingBookings.map((booking) => (
+              <View
+                key={booking.id}
+                style={styles.appointment}
+              >
+
+                <Text style={styles.doctorName}>
+                  {booking.doctor}
                 </Text>
 
                 <Text style={styles.specialty}>
-                  {item.specialty}
+                  {booking.specialty}
                 </Text>
 
-                <Text style={styles.details}>
-                  🏥 {item.hospital}
+                <Text style={styles.detail}>
+                  Hospital: {booking.hospital}
                 </Text>
 
-                <Text style={styles.details}>
-                  📅 {item.date}
+                <Text style={styles.detail}>
+                  Date: {booking.date}
                 </Text>
 
-                <Text style={styles.details}>
-                  🕐 {item.time}
+                <Text style={styles.detail}>
+                  Time: {booking.time}
                 </Text>
 
                 <View style={styles.divider} />
 
-                <View style={styles.actions}>
+                {/* APPOINTMENT BUTTONS */}
+
+                <View style={styles.buttonRow}>
+
                   <TouchableOpacity
                     style={styles.cancelButton}
                     onPress={() =>
-                      cancelBooking(item.id)
+                      cancelAppointment(
+                        booking.id
+                      )
                     }
+                    activeOpacity={0.8}
                   >
                     <Text style={styles.cancelText}>
                       Cancel
@@ -198,153 +242,222 @@ export default function BookingsScreen() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={styles.completeButton}
-                    onPress={() =>
-                      completeBooking(item.id)
+                    style={styles.consultationButton}
+                    onPress={
+                      goToConsultation
                     }
+                    activeOpacity={0.8}
                   >
-                    <Text style={styles.whiteText}>
-                      Completed
+                    <Text
+                      style={
+                        styles.consultationText
+                      }
+                    >
+                      Start Consultation
                     </Text>
                   </TouchableOpacity>
+
                 </View>
+
               </View>
             ))
           )}
+
         </View>
 
-        {/* New Booking */}
+        {/* BOOK NEW APPOINTMENT */}
 
         <TouchableOpacity
           style={styles.bookButton}
-          onPress={() => setShowModal(true)}
+          onPress={openBookingForm}
+          activeOpacity={0.8}
         >
-          <Text style={styles.whiteText}>
+          <Text style={styles.bookButtonText}>
             + Book New Appointment
           </Text>
         </TouchableOpacity>
 
-        {/* Past Appointments */}
+        {/* PAST APPOINTMENTS */}
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>
+        <View style={styles.pastCard}>
+
+          <Text style={styles.pastTitle}>
             Past Appointments
           </Text>
 
-          {past.length === 0 ? (
-            <Text style={styles.details}>
-              Your completed appointments will appear here.
+          {pastBookings.length === 0 ? (
+            <Text style={styles.pastText}>
+              Your completed appointments will
+              appear here.
             </Text>
           ) : (
-            past.map((item) => (
+            pastBookings.map((booking) => (
               <View
-                key={item.id}
-                style={styles.pastItem}
+                key={booking.id}
+                style={styles.pastAppointment}
               >
-                <Text style={styles.heading}>
-                  {item.doctor}
+
+                <Text style={styles.doctorName}>
+                  {booking.doctor}
                 </Text>
 
                 <Text style={styles.specialty}>
-                  {item.specialty}
+                  {booking.specialty}
                 </Text>
 
-                <Text style={styles.details}>
-                  🏥 {item.hospital}
+                <Text style={styles.detail}>
+                  Hospital: {booking.hospital}
                 </Text>
 
-                <Text style={styles.details}>
-                  📅 {item.date}
+                <Text style={styles.detail}>
+                  Date: {booking.date}
                 </Text>
 
-                <Text style={styles.completed}>
-                  ✓ Completed
+                <Text style={styles.detail}>
+                  Time: {booking.time}
                 </Text>
+
               </View>
             ))
           )}
+
         </View>
+
       </ScrollView>
 
-      {/* Booking Modal */}
+      {/* BOOKING MODAL */}
 
       <Modal
-        visible={showModal}
-        transparent
+        visible={modalVisible}
+        transparent={true}
         animationType="slide"
-        onRequestClose={() =>
-          setShowModal(false)
+        onRequestClose={
+          closeBookingForm
         }
       >
-        <View style={styles.overlay}>
+
+        <View style={styles.modalOverlay}>
+
           <View style={styles.modal}>
+
+            {/* MODAL HEADER */}
+
             <View style={styles.modalHeader}>
+
               <Text style={styles.modalTitle}>
                 Book Appointment
               </Text>
 
               <TouchableOpacity
-                onPress={() =>
-                  setShowModal(false)
+                onPress={
+                  closeBookingForm
                 }
               >
-                <Text style={styles.close}>
-                  ✕
+                <Text style={styles.closeText}>
+                  X
                 </Text>
               </TouchableOpacity>
+
             </View>
+
+            {/* DOCTOR */}
+
+            <Text style={styles.inputLabel}>
+              Doctor Name
+            </Text>
 
             <TextInput
               style={styles.input}
-              placeholder="Doctor name"
-              placeholderTextColor={colors.gray}
+              placeholder="Enter doctor name"
+              placeholderTextColor={
+                colors.gray
+              }
               value={doctor}
               onChangeText={setDoctor}
             />
 
+            {/* SPECIALTY */}
+
+            <Text style={styles.inputLabel}>
+              Specialty
+            </Text>
+
             <TextInput
               style={styles.input}
-              placeholder="Specialty"
-              placeholderTextColor={colors.gray}
+              placeholder="Enter specialty"
+              placeholderTextColor={
+                colors.gray
+              }
               value={specialty}
               onChangeText={setSpecialty}
             />
 
+            {/* HOSPITAL */}
+
+            <Text style={styles.inputLabel}>
+              Hospital
+            </Text>
+
             <TextInput
               style={styles.input}
-              placeholder="Hospital"
-              placeholderTextColor={colors.gray}
+              placeholder="Enter hospital name"
+              placeholderTextColor={
+                colors.gray
+              }
               value={hospital}
               onChangeText={setHospital}
             />
 
+            {/* DATE */}
+
+            <Text style={styles.inputLabel}>
+              Date
+            </Text>
+
             <TextInput
               style={styles.input}
-              placeholder="Date"
-              placeholderTextColor={colors.gray}
+              placeholder="DD/MM/YYYY"
+              placeholderTextColor={
+                colors.gray
+              }
               value={date}
               onChangeText={setDate}
             />
 
+            {/* TIME */}
+
+            <Text style={styles.inputLabel}>
+              Time
+            </Text>
+
             <TextInput
               style={styles.input}
-              placeholder="Time"
-              placeholderTextColor={colors.gray}
+              placeholder="Example: 5:30 PM"
+              placeholderTextColor={
+                colors.gray
+              }
               value={time}
               onChangeText={setTime}
             />
 
+            {/* CONFIRM */}
+
             <TouchableOpacity
               style={styles.confirmButton}
-              onPress={addBooking}
+              onPress={bookAppointment}
+              activeOpacity={0.8}
             >
-              <Text style={styles.whiteText}>
+              <Text style={styles.confirmText}>
                 Confirm Appointment
               </Text>
             </TouchableOpacity>
+
           </View>
+
         </View>
+
       </Modal>
+
     </SafeAreaView>
   );
 }
@@ -352,7 +465,7 @@ export default function BookingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: "#F8FBFF",
   },
 
   content: {
@@ -362,182 +475,233 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "700",
-    color: colors.darkBlue,
+    color: "#193B7A",
   },
 
   subtitle: {
     fontSize: 14,
-    color: colors.gray,
+    color: "#777777",
     marginTop: 8,
     lineHeight: 21,
   },
 
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: 20,
-    marginTop: 20,
+  bookingCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "#E5E5E5",
+    padding: 22,
+    marginTop: 24,
   },
 
-  badge: {
+  upcomingBadge: {
     alignSelf: "flex-start",
-    backgroundColor: colors.inputBackground,
-    color: colors.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
-    marginBottom: 12,
+    backgroundColor: "#F4F7FD",
+    borderRadius: 7,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    marginBottom: 15,
+  },
+
+  upcomingText: {
+    color: "#3569CF",
     fontSize: 12,
     fontWeight: "600",
   },
 
-  heading: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: colors.darkBlue,
+  appointment: {
+    width: "100%",
+  },
+
+  doctorName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#193B7A",
   },
 
   specialty: {
-    fontSize: 13,
-    color: colors.primary,
+    fontSize: 14,
+    color: "#3569CF",
     marginTop: 5,
   },
 
-  details: {
-    fontSize: 13,
-    color: colors.gray,
-    marginTop: 8,
-    lineHeight: 19,
-  },
-
-  empty: {
-    fontSize: 13,
-    color: colors.text,
+  detail: {
+    fontSize: 14,
+    color: "#777777",
+    marginTop: 9,
   },
 
   divider: {
     height: 1,
-    backgroundColor: colors.border,
-    marginVertical: 15,
+    backgroundColor: "#EEEEEE",
+    marginTop: 18,
+    marginBottom: 16,
   },
 
-  actions: {
+  buttonRow: {
     flexDirection: "row",
     gap: 10,
   },
 
   cancelButton: {
     flex: 1,
-    height: 40,
+    height: 46,
+    borderRadius: 9,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
+    borderColor: "#E5E5E5",
     alignItems: "center",
     justifyContent: "center",
   },
 
   cancelText: {
-    color: colors.error,
-    fontSize: 12,
+    color: "#E53935",
+    fontSize: 14,
     fontWeight: "600",
   },
 
-  completeButton: {
+  consultationButton: {
     flex: 1,
-    height: 40,
-    backgroundColor: colors.primary,
-    borderRadius: 8,
+    height: 46,
+    borderRadius: 9,
+    backgroundColor: "#3569CF",
     alignItems: "center",
     justifyContent: "center",
   },
 
-  whiteText: {
-    color: colors.white,
-    fontSize: 13,
+  consultationText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+
+  emptyContainer: {
+    paddingVertical: 15,
+  },
+
+  emptyTitle: {
+    fontSize: 15,
     fontWeight: "600",
+    color: "#193B7A",
+  },
+
+  emptyText: {
+    fontSize: 13,
+    color: "#777777",
+    marginTop: 6,
   },
 
   bookButton: {
-    height: 48,
-    backgroundColor: colors.primary,
-    borderRadius: 10,
+    height: 53,
+    borderRadius: 11,
+    backgroundColor: "#3569CF",
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 20,
+  },
+
+  bookButtonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+
+  pastCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#E5E5E5",
+    padding: 22,
+    marginTop: 22,
+  },
+
+  pastTitle: {
+    fontSize: 19,
+    fontWeight: "700",
+    color: "#193B7A",
+  },
+
+  pastText: {
+    fontSize: 14,
+    color: "#777777",
+    marginTop: 10,
+    lineHeight: 20,
+  },
+
+  pastAppointment: {
     marginTop: 18,
-  },
-
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    color: colors.darkBlue,
-  },
-
-  pastItem: {
+    paddingTop: 18,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-    marginTop: 15,
-    paddingTop: 15,
+    borderTopColor: "#EEEEEE",
   },
 
-  completed: {
-    color: "#4CAF50",
-    fontSize: 12,
-    fontWeight: "600",
-    marginTop: 8,
-  },
-
-  overlay: {
+  modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.45)",
     justifyContent: "flex-end",
   },
 
   modal: {
-    backgroundColor: colors.white,
-    padding: 24,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    paddingHorizontal: 24,
+    paddingTop: 22,
     paddingBottom: 30,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
   },
 
   modalHeader: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    justifyContent: "space-between",
+    marginBottom: 8,
   },
 
   modalTitle: {
     fontSize: 21,
     fontWeight: "700",
-    color: colors.darkBlue,
+    color: "#193B7A",
   },
 
-  close: {
-    fontSize: 20,
-    color: colors.gray,
+  closeText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#777777",
+  },
+
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#193B7A",
+    marginTop: 12,
+    marginBottom: 6,
   },
 
   input: {
     height: 46,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    marginTop: 10,
-    color: colors.text,
+    borderColor: "#E1E1E1",
+    borderRadius: 9,
+    paddingHorizontal: 13,
+    fontSize: 14,
+    color: "#222222",
+    backgroundColor: "#FFFFFF",
   },
 
   confirmButton: {
-    height: 48,
-    backgroundColor: colors.primary,
-    borderRadius: 9,
+    height: 50,
+    backgroundColor: "#3569CF",
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 18,
+    marginTop: 20,
+  },
+
+  confirmText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
   },
 });

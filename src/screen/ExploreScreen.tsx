@@ -1,32 +1,45 @@
 import React, { useMemo, useState } from "react";
 import {
-  FlatList,
+  Image,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+
 import colors from "../theme/theme";
+
+type Specialty =
+  | "All"
+  | "Cardiologist"
+  | "Dermatologist"
+  | "Neurologist"
+  | "Pediatrician";
 
 type Doctor = {
   id: string;
   name: string;
-  specialty: string;
+  specialty: Specialty;
   hospital: string;
-  experience: string;
   rating: string;
+  experience: string;
+  image: string;
+  about: string;
   fee: string;
+  availableTime: string;
 };
 
 type Hospital = {
   id: string;
   name: string;
+  specialty: string;
   location: string;
-  type: string;
   rating: string;
   doctors: string;
+  image: string;
 };
 
 const doctors: Doctor[] = [
@@ -35,45 +48,70 @@ const doctors: Doctor[] = [
     name: "Dr. John Smith",
     specialty: "Cardiologist",
     hospital: "City Care Hospital",
-    experience: "12 Years",
     rating: "4.8",
+    experience: "12 Years",
+    image:
+      "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80",
+    about:
+      "Dr. John Smith is an experienced cardiologist specializing in heart health, cardiovascular conditions and preventive cardiac care.",
     fee: "₹800",
+    availableTime: "10:00 AM - 1:00 PM",
   },
   {
     id: "2",
     name: "Dr. Sarah Wilson",
     specialty: "Dermatologist",
     hospital: "Apollo Hospital",
-    experience: "8 Years",
     rating: "4.7",
-    fee: "₹600",
+    experience: "8 Years",
+    image:
+      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+    about:
+      "Dr. Sarah Wilson specializes in skin, hair and cosmetic dermatology. She provides treatment for common and complex skin conditions.",
+    fee: "₹700",
+    availableTime: "11:00 AM - 3:00 PM",
   },
   {
     id: "3",
     name: "Dr. Michael Brown",
     specialty: "Neurologist",
     hospital: "Global Health Hospital",
-    experience: "15 Years",
     rating: "4.9",
-    fee: "₹1000",
+    experience: "15 Years",
+    image:
+      "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80",
+    about:
+      "Dr. Michael Brown is a neurologist experienced in diagnosing and managing neurological conditions and nervous system disorders.",
+    fee: "₹900",
+    availableTime: "9:00 AM - 12:00 PM",
   },
   {
     id: "4",
     name: "Dr. Emily Davis",
     specialty: "Pediatrician",
     hospital: "Children Care Hospital",
-    experience: "10 Years",
     rating: "4.8",
-    fee: "₹700",
+    experience: "10 Years",
+    image:
+      "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=400&q=80",
+    about:
+      "Dr. Emily Davis provides pediatric healthcare for children, including routine checkups, vaccinations and general medical care.",
+    fee: "₹600",
+    availableTime: "10:00 AM - 2:00 PM",
   },
   {
     id: "5",
     name: "Dr. Robert Taylor",
-    specialty: "Orthopedic",
+    specialty: "Cardiologist",
     hospital: "City Care Hospital",
-    experience: "11 Years",
-    rating: "4.6",
-    fee: "₹750",
+    rating: "4.8",
+    experience: "14 Years",
+    image:
+      "https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=400&q=80",
+    about:
+      "Dr. Robert Taylor specializes in cardiovascular diagnosis, treatment and long-term heart health management.",
+    fee: "₹850",
+    availableTime: "2:00 PM - 5:00 PM",
   },
 ];
 
@@ -81,639 +119,999 @@ const hospitals: Hospital[] = [
   {
     id: "1",
     name: "City Care Hospital",
+    specialty: "Multi-Specialty",
     location: "Coimbatore",
-    type: "Multi-Specialty",
     rating: "4.7",
     doctors: "120+ Doctors",
+    image:
+      "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: "2",
     name: "Apollo Hospital",
+    specialty: "Multi-Specialty",
     location: "Chennai",
-    type: "Multi-Specialty",
     rating: "4.8",
     doctors: "180+ Doctors",
+    image:
+      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: "3",
     name: "Global Health Hospital",
+    specialty: "Advanced Care",
     location: "Bangalore",
-    type: "Advanced Care",
     rating: "4.6",
     doctors: "150+ Doctors",
+    image:
+      "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: "4",
     name: "Children Care Hospital",
+    specialty: "Pediatric Care",
     location: "Coimbatore",
-    type: "Pediatric Care",
     rating: "4.8",
     doctors: "80+ Doctors",
+    image:
+      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80",
   },
 ];
 
-const specialties = [
+const specialties: Specialty[] = [
   "All",
   "Cardiologist",
   "Dermatologist",
   "Neurologist",
   "Pediatrician",
-  "Orthopedic",
 ];
-
-type ScreenMode = "explore" | "doctor" | "hospital";
 
 export default function ExploreScreen() {
   const [search, setSearch] = useState("");
-  const [specialty, setSpecialty] = useState("All");
-  const [mode, setMode] = useState<ScreenMode>("explore");
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(
-    null
-  );
+
+  const [selectedSpecialty, setSelectedSpecialty] =
+    useState<Specialty>("All");
+
+  const [selectedDoctor, setSelectedDoctor] =
+    useState<Doctor | null>(null);
 
   const filteredDoctors = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const searchText = search.trim().toLowerCase();
 
     return doctors.filter((doctor) => {
       const matchesSpecialty =
-        specialty === "All" || doctor.specialty === specialty;
+        selectedSpecialty === "All" ||
+        doctor.specialty === selectedSpecialty;
 
       const matchesSearch =
-        !query ||
-        doctor.name.toLowerCase().includes(query) ||
-        doctor.specialty.toLowerCase().includes(query) ||
-        doctor.hospital.toLowerCase().includes(query);
+        searchText.length === 0 ||
+        doctor.name
+          .toLowerCase()
+          .includes(searchText) ||
+        doctor.specialty
+          .toLowerCase()
+          .includes(searchText) ||
+        doctor.hospital
+          .toLowerCase()
+          .includes(searchText);
 
       return matchesSpecialty && matchesSearch;
     });
-  }, [search, specialty]);
+  }, [search, selectedSpecialty]);
 
   const filteredHospitals = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const searchText = search.trim().toLowerCase();
 
-    return hospitals.filter((hospital) => {
-      return (
-        !query ||
-        hospital.name.toLowerCase().includes(query) ||
-        hospital.location.toLowerCase().includes(query) ||
-        hospital.type.toLowerCase().includes(query)
-      );
-    });
+    if (!searchText) {
+      return hospitals;
+    }
+
+    return hospitals.filter(
+      (hospital) =>
+        hospital.name
+          .toLowerCase()
+          .includes(searchText) ||
+        hospital.specialty
+          .toLowerCase()
+          .includes(searchText) ||
+        hospital.location
+          .toLowerCase()
+          .includes(searchText)
+    );
   }, [search]);
 
-  const openDoctor = (doctor: Doctor) => {
-    setSelectedDoctor(doctor);
-    setMode("doctor");
-  };
+  // =====================================================
+  // DOCTOR DETAILS
+  // =====================================================
 
-  const openHospital = (hospital: Hospital) => {
-    setSelectedHospital(hospital);
-    setMode("hospital");
-  };
-
-  const goBack = () => {
-    setSelectedDoctor(null);
-    setSelectedHospital(null);
-    setMode("explore");
-  };
-
-  if (mode === "doctor" && selectedDoctor) {
+  if (selectedDoctor) {
     return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.detailsHeader}>
-          <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Text style={styles.backText}>‹</Text>
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={
+            styles.detailsContent
+          }
+        >
+          {/* BACK */}
+
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => {
+              setSelectedDoctor(null);
+            }}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.backText}>
+              ← Back
+            </Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Doctor Details</Text>
-          <View style={styles.headerSpace} />
-        </View>
 
-        <View style={styles.detailsCard}>
-          <View style={styles.avatarLarge}>
-            <Text style={styles.avatarText}>DR</Text>
-          </View>
+          {/* DOCTOR IMAGE */}
 
-          <Text style={styles.detailsName}>{selectedDoctor.name}</Text>
-          <Text style={styles.detailsSpecialty}>
-            {selectedDoctor.specialty}
-          </Text>
+          <Image
+            source={{
+              uri: selectedDoctor.image,
+            }}
+            style={styles.detailsImage}
+            resizeMode="cover"
+          />
 
-          <View style={styles.ratingBox}>
-            <Text style={styles.star}>★</Text>
-            <Text style={styles.ratingText}>{selectedDoctor.rating}</Text>
-          </View>
+          {/* DOCTOR NAME */}
 
-          <InfoRow title="Hospital" value={selectedDoctor.hospital} />
-          <InfoRow title="Experience" value={selectedDoctor.experience} />
-          <InfoRow title="Consultation Fee" value={selectedDoctor.fee} />
-
-          <TouchableOpacity style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>View Hospital</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (mode === "hospital" && selectedHospital) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.detailsHeader}>
-          <TouchableOpacity onPress={goBack} style={styles.backButton}>
-            <Text style={styles.backText}>‹</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Hospital Details</Text>
-          <View style={styles.headerSpace} />
-        </View>
-
-        <View style={styles.detailsCard}>
-          <View style={styles.hospitalIconLarge}>
-            <Text style={styles.hospitalIconText}>H</Text>
-          </View>
-
-          <Text style={styles.detailsName}>{selectedHospital.name}</Text>
-          <Text style={styles.detailsSpecialty}>
-            {selectedHospital.type}
-          </Text>
-
-          <View style={styles.ratingBox}>
-            <Text style={styles.star}>★</Text>
-            <Text style={styles.ratingText}>{selectedHospital.rating}</Text>
-          </View>
-
-          <InfoRow title="Location" value={selectedHospital.location} />
-          <InfoRow title="Hospital Type" value={selectedHospital.type} />
-          <InfoRow title="Available Doctors" value={selectedHospital.doctors} />
-
-          <TouchableOpacity style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>View Doctors</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={filteredDoctors}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-        ListHeaderComponent={
-          <View>
-            <Text style={styles.title}>Explore</Text>
-            <Text style={styles.subtitle}>
-              Find doctors and hospitals near you
+          <View style={styles.detailsHeader}>
+            <Text style={styles.detailsName}>
+              {selectedDoctor.name}
             </Text>
 
-            <View style={styles.searchBox}>
-              <Text style={styles.searchIcon}>⌕</Text>
-              <TextInput
-                value={search}
-                onChangeText={setSearch}
-                placeholder="Search doctors or hospitals"
-                placeholderTextColor={colors.gray}
-                style={styles.searchInput}
-              />
-              {search.length > 0 && (
-                <TouchableOpacity onPress={() => setSearch("")}>
-                  <Text style={styles.clearText}>×</Text>
-                </TouchableOpacity>
-              )}
+            <Text style={styles.detailsSpecialty}>
+              {selectedDoctor.specialty}
+            </Text>
+
+            <Text style={styles.detailsHospital}>
+              {selectedDoctor.hospital}
+            </Text>
+          </View>
+
+          {/* RATING */}
+
+          <View style={styles.ratingCard}>
+            <View style={styles.ratingItem}>
+              <Text style={styles.ratingValue}>
+                ★ {selectedDoctor.rating}
+              </Text>
+
+              <Text style={styles.ratingLabel}>
+                Rating
+              </Text>
             </View>
 
-            <Text style={styles.sectionTitle}>Specialties</Text>
+            <View style={styles.verticalLine} />
 
-            <FlatList
-              data={specialties}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(item) => item}
-              contentContainerStyle={styles.specialtyList}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.specialtyButton,
-                    specialty === item && styles.specialtyActive,
-                  ]}
-                  onPress={() => setSpecialty(item)}
-                >
-                  <Text
-                    style={[
-                      styles.specialtyText,
-                      specialty === item && styles.specialtyTextActive,
-                    ]}
-                  >
-                    {item}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
+            <View style={styles.ratingItem}>
+              <Text style={styles.ratingValue}>
+                {selectedDoctor.experience}
+              </Text>
 
-            <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>Doctors</Text>
-              <Text style={styles.countText}>
-                {filteredDoctors.length} found
+              <Text style={styles.ratingLabel}>
+                Experience
+              </Text>
+            </View>
+
+            <View style={styles.verticalLine} />
+
+            <View style={styles.ratingItem}>
+              <Text style={styles.ratingValue}>
+                {selectedDoctor.fee}
+              </Text>
+
+              <Text style={styles.ratingLabel}>
+                Consultation
               </Text>
             </View>
           </View>
-        }
-        renderItem={({ item }) => (
+
+          {/* ABOUT */}
+
+          <Text style={styles.detailsSectionTitle}>
+            About Doctor
+          </Text>
+
+          <View style={styles.aboutCard}>
+            <Text style={styles.aboutText}>
+              {selectedDoctor.about}
+            </Text>
+          </View>
+
+          {/* HOSPITAL */}
+
+          <Text style={styles.detailsSectionTitle}>
+            Hospital
+          </Text>
+
+          <View style={styles.infoCard}>
+            <Text style={styles.infoTitle}>
+              {selectedDoctor.hospital}
+            </Text>
+
+            <Text style={styles.infoText}>
+              Multi-Specialty Hospital
+            </Text>
+          </View>
+
+          {/* AVAILABILITY */}
+
+          <Text style={styles.detailsSectionTitle}>
+            Available Time
+          </Text>
+
+          <View style={styles.availabilityCard}>
+            <Text style={styles.availabilityLabel}>
+              Consultation Hours
+            </Text>
+
+            <Text style={styles.availabilityTime}>
+              {selectedDoctor.availableTime}
+            </Text>
+          </View>
+
+          {/* BOOK BUTTON */}
+
           <TouchableOpacity
-            style={styles.doctorCard}
-            onPress={() => openDoctor(item)}
+            style={styles.bookButton}
             activeOpacity={0.8}
+            onPress={() => {
+              alert(
+                `Appointment booking for ${selectedDoctor.name}`
+              );
+            }}
           >
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>DR</Text>
-            </View>
+            <Text style={styles.bookButtonText}>
+              Book Appointment
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  // =====================================================
+  // EXPLORE SCREEN
+  // =====================================================
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
+        {/* HEADER */}
+
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Explore
+          </Text>
+
+          <Text style={styles.subtitle}>
+            Find doctors and hospitals near you
+          </Text>
+        </View>
+
+        {/* SEARCH */}
+
+        <View style={styles.searchContainer}>
+          <Text style={styles.searchIcon}>
+            ⌕
+          </Text>
+
+          <TextInput
+            value={search}
+            onChangeText={setSearch}
+            placeholder="Search doctors or hospitals"
+            placeholderTextColor={colors.gray}
+            style={styles.searchInput}
+          />
+        </View>
+
+        {/* SPECIALTIES */}
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            Specialties
+          </Text>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={
+            styles.specialtiesContainer
+          }
+        >
+          {specialties.map((specialty) => {
+            const active =
+              selectedSpecialty === specialty;
+
+            return (
+              <TouchableOpacity
+                key={specialty}
+                style={[
+                  styles.specialtyButton,
+                  active &&
+                    styles.activeSpecialtyButton,
+                ]}
+                onPress={() =>
+                  setSelectedSpecialty(specialty)
+                }
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={[
+                    styles.specialtyText,
+                    active &&
+                      styles.activeSpecialtyText,
+                  ]}
+                >
+                  {specialty}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* DOCTORS */}
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            Doctors
+          </Text>
+
+          <Text style={styles.foundText}>
+            {filteredDoctors.length} found
+          </Text>
+        </View>
+
+        {filteredDoctors.map((doctor) => (
+          <TouchableOpacity
+            key={doctor.id}
+            style={styles.doctorCard}
+            activeOpacity={0.8}
+            onPress={() => {
+              setSelectedDoctor(doctor);
+            }}
+          >
+            <Image
+              source={{
+                uri: doctor.image,
+              }}
+              style={styles.doctorImage}
+              resizeMode="cover"
+            />
 
             <View style={styles.doctorInfo}>
-              <Text style={styles.doctorName}>{item.name}</Text>
-              <Text style={styles.doctorSpecialty}>{item.specialty}</Text>
-              <Text style={styles.hospitalName}>{item.hospital}</Text>
+              <Text
+                style={styles.doctorName}
+                numberOfLines={1}
+              >
+                {doctor.name}
+              </Text>
 
-              <View style={styles.doctorBottom}>
-                <Text style={styles.star}>★</Text>
-                <Text style={styles.ratingText}>{item.rating}</Text>
-                <Text style={styles.experience}>{item.experience}</Text>
+              <Text
+                style={styles.doctorSpecialty}
+                numberOfLines={1}
+              >
+                {doctor.specialty}
+              </Text>
+
+              <Text
+                style={styles.doctorHospital}
+                numberOfLines={1}
+              >
+                {doctor.hospital}
+              </Text>
+
+              <View
+                style={styles.doctorBottomRow}
+              >
+                <Text style={styles.star}>
+                  ★
+                </Text>
+
+                <Text style={styles.rating}>
+                  {doctor.rating}
+                </Text>
+
+                <Text
+                  style={styles.experience}
+                >
+                  {doctor.experience}
+                </Text>
               </View>
             </View>
 
-            <Text style={styles.arrow}>›</Text>
+            <Text style={styles.arrow}>
+              ›
+            </Text>
           </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <View style={styles.emptyBox}>
-            <Text style={styles.emptyTitle}>No doctors found</Text>
+        ))}
+
+        {/* NO DOCTORS */}
+
+        {filteredDoctors.length === 0 && (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>
+              No doctors found
+            </Text>
+
             <Text style={styles.emptyText}>
               Try another search or specialty.
             </Text>
           </View>
-        }
-        ListFooterComponent={
-          <View>
-            <View style={styles.sectionRow}>
-              <Text style={styles.sectionTitle}>Hospitals</Text>
-              <Text style={styles.countText}>
-                {filteredHospitals.length} found
+        )}
+
+        {/* HOSPITALS */}
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>
+            Hospitals
+          </Text>
+
+          <Text style={styles.foundText}>
+            {filteredHospitals.length} found
+          </Text>
+        </View>
+
+        {filteredHospitals.map((hospital) => (
+          <TouchableOpacity
+            key={hospital.id}
+            style={styles.hospitalCard}
+            activeOpacity={0.8}
+          >
+            <Image
+              source={{
+                uri: hospital.image,
+              }}
+              style={styles.hospitalImage}
+              resizeMode="cover"
+            />
+
+            <View style={styles.hospitalInfo}>
+              <Text
+                style={styles.hospitalName}
+                numberOfLines={1}
+              >
+                {hospital.name}
               </Text>
+
+              <Text
+                style={styles.hospitalSpecialty}
+                numberOfLines={1}
+              >
+                {hospital.specialty}
+              </Text>
+
+              <Text
+                style={styles.hospitalLocation}
+                numberOfLines={1}
+              >
+                {hospital.location}
+              </Text>
+
+              <View
+                style={styles.hospitalBottomRow}
+              >
+                <Text style={styles.star}>
+                  ★
+                </Text>
+
+                <Text style={styles.rating}>
+                  {hospital.rating}
+                </Text>
+
+                <Text
+                  style={styles.doctorCount}
+                >
+                  {hospital.doctors}
+                </Text>
+              </View>
             </View>
 
-            {filteredHospitals.map((hospital) => (
-              <TouchableOpacity
-                key={hospital.id}
-                style={styles.hospitalCard}
-                onPress={() => openHospital(hospital)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.hospitalIcon}>
-                  <Text style={styles.hospitalIconText}>H</Text>
-                </View>
+            <Text style={styles.arrow}>
+              ›
+            </Text>
+          </TouchableOpacity>
+        ))}
 
-                <View style={styles.hospitalInfo}>
-                  <Text style={styles.hospitalTitle}>{hospital.name}</Text>
-                  <Text style={styles.hospitalType}>{hospital.type}</Text>
-                  <Text style={styles.location}>{hospital.location}</Text>
+        {/* NO HOSPITALS */}
 
-                  <View style={styles.doctorBottom}>
-                    <Text style={styles.star}>★</Text>
-                    <Text style={styles.ratingText}>{hospital.rating}</Text>
-                    <Text style={styles.experience}>
-                      {hospital.doctors}
-                    </Text>
-                  </View>
-                </View>
+        {filteredHospitals.length === 0 && (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>
+              No hospitals found
+            </Text>
 
-                <Text style={styles.arrow}>›</Text>
-              </TouchableOpacity>
-            ))}
+            <Text style={styles.emptyText}>
+              Try another search.
+            </Text>
           </View>
-        }
-      />
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-function InfoRow({ title, value }: { title: string; value: string }) {
-  return (
-    <View style={styles.infoRow}>
-      <Text style={styles.infoTitle}>{title}</Text>
-      <Text style={styles.infoValue}>{value}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  container: {
+  // =====================================================
+  // MAIN
+  // =====================================================
+
+  safeArea: {
     flex: 1,
     backgroundColor: colors.background,
   },
+
   content: {
-    paddingHorizontal: 18,
-    paddingBottom: 25,
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 30,
   },
+
+  header: {
+    marginBottom: 20,
+  },
+
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "700",
-    color: colors.text,
-    marginTop: 15,
+    color: colors.darkBlue,
   },
+
   subtitle: {
     fontSize: 14,
     color: colors.gray,
     marginTop: 5,
-    marginBottom: 18,
   },
-  searchBox: {
-    height: 50,
+
+  // =====================================================
+  // SEARCH
+  // =====================================================
+
+  searchContainer: {
+    height: 54,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
+    borderRadius: 14,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
   },
+
   searchIcon: {
     fontSize: 25,
     color: colors.gray,
     marginRight: 8,
   },
+
   searchInput: {
     flex: 1,
+    height: "100%",
     fontSize: 14,
     color: colors.text,
   },
-  clearText: {
-    fontSize: 25,
-    color: colors.gray,
+
+  // =====================================================
+  // SECTIONS
+  // =====================================================
+
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 25,
+    marginBottom: 12,
   },
+
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: colors.text,
-    marginTop: 22,
-    marginBottom: 10,
   },
-  specialtyList: {
-    paddingBottom: 4,
+
+  foundText: {
+    fontSize: 12,
+    color: colors.gray,
   },
+
+  // =====================================================
+  // SPECIALTIES
+  // =====================================================
+
+  specialtiesContainer: {
+    gap: 10,
+    paddingBottom: 2,
+  },
+
   specialtyButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 9,
+    height: 40,
+    paddingHorizontal: 18,
     borderRadius: 20,
     backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    marginRight: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  specialtyActive: {
+
+  activeSpecialtyButton: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
+
   specialtyText: {
-    fontSize: 12,
+    fontSize: 13,
     color: colors.gray,
   },
-  specialtyTextActive: {
+
+  activeSpecialtyText: {
     color: colors.white,
     fontWeight: "600",
   },
-  sectionRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  countText: {
-    color: colors.gray,
-    fontSize: 12,
-  },
+
+  // =====================================================
+  // DOCTOR CARD
+  // =====================================================
+
   doctorCard: {
+    minHeight: 124,
     backgroundColor: colors.white,
-    borderRadius: 15,
-    padding: 14,
-    marginBottom: 12,
-    flexDirection: "row",
-    alignItems: "center",
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
-  },
-  avatar: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: "#E8F0FF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarLarge: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: "#E8F0FF",
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: 15,
-  },
-  avatarText: {
-    color: colors.primary,
-    fontWeight: "700",
-    fontSize: 16,
-  },
-  doctorInfo: {
-    flex: 1,
-    marginLeft: 13,
-  },
-  doctorName: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  doctorSpecialty: {
-    fontSize: 12,
-    color: colors.primary,
-    marginTop: 3,
-  },
-  hospitalName: {
-    fontSize: 11,
-    color: colors.gray,
-    marginTop: 3,
-  },
-  doctorBottom: {
+    marginBottom: 12,
+    padding: 14,
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 6,
   },
-  star: {
-    color: "#F5A623",
+
+  doctorImage: {
+    width: 76,
+    height: 94,
+    borderRadius: 12,
+    backgroundColor: colors.inputBackground,
+  },
+
+  doctorInfo: {
+    flex: 1,
+    marginLeft: 14,
+  },
+
+  doctorName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.text,
+  },
+
+  doctorSpecialty: {
     fontSize: 13,
-    marginRight: 3,
+    color: colors.primary,
+    marginTop: 5,
   },
-  ratingText: {
+
+  doctorHospital: {
+    fontSize: 12,
+    color: colors.gray,
+    marginTop: 4,
+  },
+
+  doctorBottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 9,
+  },
+
+  star: {
+    fontSize: 15,
+    color: "#F5A623",
+  },
+
+  rating: {
     fontSize: 12,
     color: colors.text,
+    marginLeft: 4,
     fontWeight: "600",
   },
+
   experience: {
-    fontSize: 11,
+    fontSize: 12,
     color: colors.gray,
     marginLeft: 12,
   },
+
   arrow: {
     fontSize: 28,
     color: colors.gray,
-    marginLeft: 5,
+    marginLeft: 8,
   },
+
+  // =====================================================
+  // HOSPITAL CARD
+  // =====================================================
+
   hospitalCard: {
+    minHeight: 120,
     backgroundColor: colors.white,
-    borderRadius: 15,
-    padding: 14,
-    marginBottom: 12,
-    flexDirection: "row",
-    alignItems: "center",
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.border,
+    marginBottom: 12,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
   },
-  hospitalIcon: {
-    width: 55,
-    height: 55,
+
+  hospitalImage: {
+    width: 82,
+    height: 82,
     borderRadius: 12,
-    backgroundColor: "#EAF4FF",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: colors.inputBackground,
   },
-  hospitalIconLarge: {
-    width: 90,
-    height: 90,
-    borderRadius: 18,
-    backgroundColor: "#EAF4FF",
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-    marginBottom: 15,
-  },
-  hospitalIconText: {
-    fontSize: 23,
-    fontWeight: "700",
-    color: colors.primary,
-  },
+
   hospitalInfo: {
     flex: 1,
-    marginLeft: 13,
+    marginLeft: 14,
   },
-  hospitalTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.text,
-  },
-  hospitalType: {
-    fontSize: 12,
-    color: colors.primary,
-    marginTop: 3,
-  },
-  location: {
-    fontSize: 11,
-    color: colors.gray,
-    marginTop: 3,
-  },
-  emptyBox: {
-    alignItems: "center",
-    paddingVertical: 35,
-  },
-  emptyTitle: {
+
+  hospitalName: {
     fontSize: 16,
     fontWeight: "700",
     color: colors.text,
   },
+
+  hospitalSpecialty: {
+    fontSize: 13,
+    color: colors.primary,
+    marginTop: 5,
+  },
+
+  hospitalLocation: {
+    fontSize: 12,
+    color: colors.gray,
+    marginTop: 4,
+  },
+
+  hospitalBottomRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+  },
+
+  doctorCount: {
+    fontSize: 12,
+    color: colors.gray,
+    marginLeft: 12,
+  },
+
+  // =====================================================
+  // EMPTY
+  // =====================================================
+
+  emptyCard: {
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 25,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+
+  emptyTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.text,
+  },
+
   emptyText: {
+    fontSize: 12,
+    color: colors.gray,
+    marginTop: 5,
+  },
+
+  // =====================================================
+  // DOCTOR DETAILS
+  // =====================================================
+
+  detailsContent: {
+    paddingBottom: 35,
+  },
+
+  backButton: {
+    height: 52,
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    backgroundColor: colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+
+  backText: {
+    fontSize: 15,
+    color: colors.primary,
+    fontWeight: "600",
+  },
+
+  detailsImage: {
+    width: "100%",
+    height: 300,
+    backgroundColor: colors.inputBackground,
+  },
+
+  detailsHeader: {
+    backgroundColor: colors.white,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+
+  detailsName: {
+    fontSize: 25,
+    fontWeight: "700",
+    color: colors.darkBlue,
+  },
+
+  detailsSpecialty: {
+    fontSize: 15,
+    color: colors.primary,
+    marginTop: 6,
+    fontWeight: "600",
+  },
+
+  detailsHospital: {
     fontSize: 13,
     color: colors.gray,
     marginTop: 5,
   },
-  detailsHeader: {
-    height: 60,
+
+  // =====================================================
+  // RATING CARD
+  // =====================================================
+
+  ratingCard: {
+    marginHorizontal: 20,
+    marginTop: 18,
+    paddingVertical: 18,
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 18,
+    justifyContent: "space-around",
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.white,
+
+  ratingItem: {
+    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
   },
-  backText: {
-    fontSize: 32,
-    color: colors.text,
-    marginTop: -4,
-  },
-  headerTitle: {
-    fontSize: 18,
+
+  ratingValue: {
+    fontSize: 14,
     fontWeight: "700",
     color: colors.text,
   },
-  headerSpace: {
-    width: 40,
+
+  ratingLabel: {
+    fontSize: 11,
+    color: colors.gray,
+    marginTop: 5,
   },
-  detailsCard: {
+
+  verticalLine: {
+    width: 1,
+    height: 35,
+    backgroundColor: colors.border,
+  },
+
+  // =====================================================
+  // ABOUT
+  // =====================================================
+
+  detailsSectionTitle: {
+    fontSize: 19,
+    fontWeight: "700",
+    color: colors.darkBlue,
+    marginHorizontal: 20,
+    marginTop: 25,
+    marginBottom: 10,
+  },
+
+  aboutCard: {
+    marginHorizontal: 20,
+    padding: 16,
     backgroundColor: colors.white,
-    margin: 18,
-    padding: 22,
-    borderRadius: 18,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: colors.border,
   },
-  detailsName: {
-    textAlign: "center",
-    fontSize: 21,
+
+  aboutText: {
+    fontSize: 13,
+    color: colors.gray,
+    lineHeight: 21,
+  },
+
+  // =====================================================
+  // INFO
+  // =====================================================
+
+  infoCard: {
+    marginHorizontal: 20,
+    padding: 16,
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  infoTitle: {
+    fontSize: 15,
     fontWeight: "700",
     color: colors.text,
   },
-  detailsSpecialty: {
-    textAlign: "center",
-    color: colors.primary,
-    fontSize: 14,
-    marginTop: 5,
-  },
-  ratingBox: {
-    alignSelf: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 18,
-  },
-  infoRow: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingVertical: 14,
-  },
-  infoTitle: {
+
+  infoText: {
     fontSize: 12,
     color: colors.gray,
-    marginBottom: 4,
+    marginTop: 5,
   },
-  infoValue: {
-    fontSize: 15,
-    fontWeight: "600",
+
+  // =====================================================
+  // AVAILABILITY
+  // =====================================================
+
+  availabilityCard: {
+    marginHorizontal: 20,
+    padding: 16,
+    backgroundColor: colors.white,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  availabilityLabel: {
+    fontSize: 13,
     color: colors.text,
+    fontWeight: "600",
   },
-  primaryButton: {
-    height: 48,
+
+  availabilityTime: {
+    fontSize: 12,
+    color: colors.primary,
+    fontWeight: "600",
+  },
+
+  // =====================================================
+  // BOOK APPOINTMENT
+  // =====================================================
+
+  bookButton: {
+    height: 54,
+    marginHorizontal: 20,
+    marginTop: 25,
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 15,
   },
-  primaryButtonText: {
+
+  bookButtonText: {
     color: colors.white,
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: "700",
   },
 });

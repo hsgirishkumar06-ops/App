@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import {
+  StyleSheet,
+  View,
+} from "react-native";
 
 import BottomTabBar from "../components/BottomTabBar";
 
@@ -18,16 +21,19 @@ type Tab =
 
 type Props = {
   goToLogin: () => void;
+  goToConsultation: () => void;
 };
 
 export default function BottomTabNavigation({
   goToLogin,
+  goToConsultation,
 }: Props) {
   const [activeTab, setActiveTab] =
     useState<Tab>("home");
 
   return (
     <View style={styles.container}>
+
       <View style={styles.screenContainer}>
 
         {activeTab === "home" && (
@@ -39,7 +45,11 @@ export default function BottomTabNavigation({
         )}
 
         {activeTab === "bookings" && (
-          <BookingsScreen />
+          <BookingsScreen
+            goToConsultation={
+              goToConsultation
+            }
+          />
         )}
 
         {activeTab === "chat" && (
@@ -60,6 +70,7 @@ export default function BottomTabNavigation({
           setActiveTab(tab);
         }}
       />
+
     </View>
   );
 }
