@@ -11,10 +11,14 @@ import colors from "../theme/theme";
 
 type Props = {
   onBack: () => void;
+  onOpenChat: () => void;
+  onOpenMedicalRecords: () => void;
 };
 
 export default function DoctorConsultation({
   onBack,
+  onOpenChat,
+  onOpenMedicalRecords,
 }: Props) {
   const [muted, setMuted] = useState(false);
   const [cameraOn, setCameraOn] = useState(true);
@@ -41,20 +45,20 @@ export default function DoctorConsultation({
   return (
     <View style={styles.container}>
 
-      {/* HEADER */}
+      {/* =========================
+          HEADER
+      ========================= */}
 
       <View style={styles.header}>
-
         <TouchableOpacity
           style={styles.backButton}
           onPress={onBack}
+          activeOpacity={0.7}
         >
-          <Text style={styles.backText}>
-            Back
-          </Text>
+          <Text style={styles.backText}>←</Text>
         </TouchableOpacity>
 
-        <View>
+        <View style={styles.headerInfo}>
           <Text style={styles.headerTitle}>
             Doctor Consultation
           </Text>
@@ -63,13 +67,13 @@ export default function DoctorConsultation({
             Live consultation
           </Text>
         </View>
-
       </View>
 
-      {/* DOCTOR INFORMATION */}
+      {/* =========================
+          DOCTOR INFORMATION
+      ========================= */}
 
       <View style={styles.doctorCard}>
-
         <View style={styles.doctorAvatar}>
           <Text style={styles.avatarText}>
             D
@@ -77,7 +81,6 @@ export default function DoctorConsultation({
         </View>
 
         <View style={styles.doctorDetails}>
-
           <Text style={styles.doctorName}>
             Dr. Rajesh Kumar
           </Text>
@@ -89,21 +92,20 @@ export default function DoctorConsultation({
           <Text style={styles.hospital}>
             Apollo Hospitals
           </Text>
-
         </View>
 
         <Text style={styles.online}>
           Online
         </Text>
-
       </View>
 
-      {/* VIDEO / CONSULTATION AREA */}
+      {/* =========================
+          VIDEO AREA
+      ========================= */}
 
       <View style={styles.videoContainer}>
 
         <View style={styles.mainVideo}>
-
           <View style={styles.largeAvatar}>
             <Text style={styles.largeAvatarText}>
               D
@@ -123,13 +125,11 @@ export default function DoctorConsultation({
               LIVE
             </Text>
           </View>
-
         </View>
 
         {/* PATIENT VIDEO */}
 
         <View style={styles.patientVideo}>
-
           {cameraOn ? (
             <>
               <View style={styles.patientAvatar}>
@@ -147,15 +147,15 @@ export default function DoctorConsultation({
               Camera Off
             </Text>
           )}
-
         </View>
 
       </View>
 
-      {/* CONSULTATION TIMER */}
+      {/* =========================
+          TIMER
+      ========================= */}
 
       <View style={styles.timerCard}>
-
         <View>
           <Text style={styles.timerLabel}>
             Consultation started
@@ -169,10 +169,11 @@ export default function DoctorConsultation({
         <Text style={styles.timer}>
           00:12:35
         </Text>
-
       </View>
 
-      {/* MAIN CONTROLS */}
+      {/* =========================
+          MAIN CONTROLS
+      ========================= */}
 
       <View style={styles.controls}>
 
@@ -184,6 +185,7 @@ export default function DoctorConsultation({
           onPress={() =>
             setMuted((value) => !value)
           }
+          activeOpacity={0.7}
         >
           <Text
             style={[
@@ -203,12 +205,12 @@ export default function DoctorConsultation({
           onPress={() =>
             setCameraOn((value) => !value)
           }
+          activeOpacity={0.7}
         >
           <Text
             style={[
               styles.controlText,
-              !cameraOn &&
-                styles.controlActiveText,
+              !cameraOn && styles.controlActiveText,
             ]}
           >
             {cameraOn ? "Camera" : "Camera Off"}
@@ -223,34 +225,30 @@ export default function DoctorConsultation({
           onPress={() =>
             setSpeakerOn((value) => !value)
           }
+          activeOpacity={0.7}
         >
           <Text
             style={[
               styles.controlText,
-              !speakerOn &&
-                styles.controlActiveText,
+              !speakerOn && styles.controlActiveText,
             ]}
           >
-            {speakerOn
-              ? "Speaker"
-              : "Speaker Off"}
+            {speakerOn ? "Speaker" : "Speaker Off"}
           </Text>
         </TouchableOpacity>
 
       </View>
 
-      {/* SECONDARY ACTIONS */}
+      {/* =========================
+          CHAT + MEDICAL RECORDS
+      ========================= */}
 
       <View style={styles.secondaryActions}>
 
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() =>
-            Alert.alert(
-              "Chat",
-              "Consultation chat will open here."
-            )
-          }
+          onPress={onOpenChat}
+          activeOpacity={0.7}
         >
           <Text style={styles.secondaryText}>
             Chat
@@ -259,12 +257,8 @@ export default function DoctorConsultation({
 
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() =>
-            Alert.alert(
-              "Medical Records",
-              "Medical records will open here."
-            )
-          }
+          onPress={onOpenMedicalRecords}
+          activeOpacity={0.7}
         >
           <Text style={styles.secondaryText}>
             Medical Records
@@ -273,7 +267,9 @@ export default function DoctorConsultation({
 
       </View>
 
-      {/* END CONSULTATION */}
+      {/* =========================
+          END CONSULTATION
+      ========================= */}
 
       <TouchableOpacity
         style={styles.endButton}
@@ -295,6 +291,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
 
+  /* HEADER */
+
   header: {
     height: 72,
     backgroundColor: colors.white,
@@ -306,14 +304,21 @@ const styles = StyleSheet.create({
   },
 
   backButton: {
-    paddingVertical: 8,
-    paddingRight: 16,
+    width: 42,
+    height: 42,
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   backText: {
     color: colors.primary,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 30,
+    fontWeight: "400",
+    lineHeight: 32,
+  },
+
+  headerInfo: {
+    flex: 1,
   },
 
   headerTitle: {
@@ -327,6 +332,8 @@ const styles = StyleSheet.create({
     color: colors.success,
     marginTop: 3,
   },
+
+  /* DOCTOR */
 
   doctorCard: {
     marginHorizontal: 20,
@@ -383,6 +390,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
   },
+
+  /* VIDEO */
 
   videoContainer: {
     height: 290,
@@ -442,6 +451,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
+  /* PATIENT VIDEO */
+
   patientVideo: {
     position: "absolute",
     right: 12,
@@ -483,6 +494,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
+  /* TIMER */
+
   timerCard: {
     marginHorizontal: 20,
     marginTop: 14,
@@ -513,6 +526,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "700",
   },
+
+  /* CONTROLS */
 
   controls: {
     flexDirection: "row",
@@ -547,6 +562,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
 
+  /* SECONDARY */
+
   secondaryActions: {
     flexDirection: "row",
     gap: 10,
@@ -570,6 +587,8 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "600",
   },
+
+  /* END */
 
   endButton: {
     height: 48,

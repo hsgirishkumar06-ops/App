@@ -3,14 +3,15 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import colors from "../theme/theme";
+import styles from "../theme/exploreStyles";
 
 type Specialty =
   | "All"
@@ -168,10 +169,8 @@ const specialties: Specialty[] = [
 
 export default function ExploreScreen() {
   const [search, setSearch] = useState("");
-
   const [selectedSpecialty, setSelectedSpecialty] =
     useState<Specialty>("All");
-
   const [selectedDoctor, setSelectedDoctor] =
     useState<Doctor | null>(null);
 
@@ -185,15 +184,9 @@ export default function ExploreScreen() {
 
       const matchesSearch =
         searchText.length === 0 ||
-        doctor.name
-          .toLowerCase()
-          .includes(searchText) ||
-        doctor.specialty
-          .toLowerCase()
-          .includes(searchText) ||
-        doctor.hospital
-          .toLowerCase()
-          .includes(searchText);
+        doctor.name.toLowerCase().includes(searchText) ||
+        doctor.specialty.toLowerCase().includes(searchText) ||
+        doctor.hospital.toLowerCase().includes(searchText);
 
       return matchesSpecialty && matchesSearch;
     });
@@ -208,43 +201,39 @@ export default function ExploreScreen() {
 
     return hospitals.filter(
       (hospital) =>
-        hospital.name
-          .toLowerCase()
-          .includes(searchText) ||
-        hospital.specialty
-          .toLowerCase()
-          .includes(searchText) ||
-        hospital.location
-          .toLowerCase()
-          .includes(searchText)
+        hospital.name.toLowerCase().includes(searchText) ||
+        hospital.specialty.toLowerCase().includes(searchText) ||
+        hospital.location.toLowerCase().includes(searchText)
     );
   }, [search]);
 
-  // =====================================================
-  // DOCTOR DETAILS
-  // =====================================================
+  /* ========================================
+     DOCTOR DETAILS
+  ======================================== */
 
   if (selectedDoctor) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={
-            styles.detailsContent
-          }
+          contentContainerStyle={styles.detailsContent}
         >
           {/* BACK */}
 
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => {
-              setSelectedDoctor(null);
-            }}
+            onPress={() => setSelectedDoctor(null)}
             activeOpacity={0.7}
           >
-            <Text style={styles.backText}>
-              ← Back
-            </Text>
+            <View style={styles.backContent}>
+              <Ionicons
+                name="arrow-back"
+                size={20}
+                color={colors.primary}
+              />
+
+              <Text style={styles.backText}>Back</Text>
+            </View>
           </TouchableOpacity>
 
           {/* DOCTOR IMAGE */}
@@ -257,7 +246,7 @@ export default function ExploreScreen() {
             resizeMode="cover"
           />
 
-          {/* DOCTOR NAME */}
+          {/* DOCTOR INFORMATION */}
 
           <View style={styles.detailsHeader}>
             <Text style={styles.detailsName}>
@@ -277,9 +266,17 @@ export default function ExploreScreen() {
 
           <View style={styles.ratingCard}>
             <View style={styles.ratingItem}>
-              <Text style={styles.ratingValue}>
-                ★ {selectedDoctor.rating}
-              </Text>
+              <View style={styles.ratingValueRow}>
+                <Ionicons
+                  name="star"
+                  size={16}
+                  color="#F5A623"
+                />
+
+                <Text style={styles.ratingValue}>
+                  {selectedDoctor.rating}
+                </Text>
+              </View>
 
               <Text style={styles.ratingLabel}>
                 Rating
@@ -339,7 +336,7 @@ export default function ExploreScreen() {
             </Text>
           </View>
 
-          {/* AVAILABILITY */}
+          {/* AVAILABLE TIME */}
 
           <Text style={styles.detailsSectionTitle}>
             Available Time
@@ -355,7 +352,7 @@ export default function ExploreScreen() {
             </Text>
           </View>
 
-          {/* BOOK BUTTON */}
+          {/* BOOK APPOINTMENT */}
 
           <TouchableOpacity
             style={styles.bookButton}
@@ -375,9 +372,9 @@ export default function ExploreScreen() {
     );
   }
 
-  // =====================================================
-  // EXPLORE SCREEN
-  // =====================================================
+  /* ========================================
+     EXPLORE SCREEN
+  ======================================== */
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -400,9 +397,12 @@ export default function ExploreScreen() {
         {/* SEARCH */}
 
         <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>
-            ⌕
-          </Text>
+          <Ionicons
+            name="search-outline"
+            size={20}
+            color={colors.gray}
+            style={styles.searchIcon}
+          />
 
           <TextInput
             value={search}
@@ -424,9 +424,7 @@ export default function ExploreScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            styles.specialtiesContainer
-          }
+          contentContainerStyle={styles.specialtiesContainer}
         >
           {specialties.map((specialty) => {
             const active =
@@ -476,9 +474,7 @@ export default function ExploreScreen() {
             key={doctor.id}
             style={styles.doctorCard}
             activeOpacity={0.8}
-            onPress={() => {
-              setSelectedDoctor(doctor);
-            }}
+            onPress={() => setSelectedDoctor(doctor)}
           >
             <Image
               source={{
@@ -510,28 +506,29 @@ export default function ExploreScreen() {
                 {doctor.hospital}
               </Text>
 
-              <View
-                style={styles.doctorBottomRow}
-              >
-                <Text style={styles.star}>
-                  ★
-                </Text>
+              <View style={styles.doctorBottomRow}>
+                <Ionicons
+                  name="star"
+                  size={15}
+                  color="#F5A623"
+                />
 
                 <Text style={styles.rating}>
                   {doctor.rating}
                 </Text>
 
-                <Text
-                  style={styles.experience}
-                >
+                <Text style={styles.experience}>
                   {doctor.experience}
                 </Text>
               </View>
             </View>
 
-            <Text style={styles.arrow}>
-              ›
-            </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={colors.gray}
+              style={styles.arrow}
+            />
           </TouchableOpacity>
         ))}
 
@@ -597,28 +594,29 @@ export default function ExploreScreen() {
                 {hospital.location}
               </Text>
 
-              <View
-                style={styles.hospitalBottomRow}
-              >
-                <Text style={styles.star}>
-                  ★
-                </Text>
+              <View style={styles.hospitalBottomRow}>
+                <Ionicons
+                  name="star"
+                  size={15}
+                  color="#F5A623"
+                />
 
                 <Text style={styles.rating}>
                   {hospital.rating}
                 </Text>
 
-                <Text
-                  style={styles.doctorCount}
-                >
+                <Text style={styles.doctorCount}>
                   {hospital.doctors}
                 </Text>
               </View>
             </View>
 
-            <Text style={styles.arrow}>
-              ›
-            </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={colors.gray}
+              style={styles.arrow}
+            />
           </TouchableOpacity>
         ))}
 
@@ -639,479 +637,3 @@ export default function ExploreScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  // =====================================================
-  // MAIN
-  // =====================================================
-
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 30,
-  },
-
-  header: {
-    marginBottom: 20,
-  },
-
-  title: {
-    fontSize: 30,
-    fontWeight: "700",
-    color: colors.darkBlue,
-  },
-
-  subtitle: {
-    fontSize: 14,
-    color: colors.gray,
-    marginTop: 5,
-  },
-
-  // =====================================================
-  // SEARCH
-  // =====================================================
-
-  searchContainer: {
-    height: 54,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-
-  searchIcon: {
-    fontSize: 25,
-    color: colors.gray,
-    marginRight: 8,
-  },
-
-  searchInput: {
-    flex: 1,
-    height: "100%",
-    fontSize: 14,
-    color: colors.text,
-  },
-
-  // =====================================================
-  // SECTIONS
-  // =====================================================
-
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 25,
-    marginBottom: 12,
-  },
-
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  foundText: {
-    fontSize: 12,
-    color: colors.gray,
-  },
-
-  // =====================================================
-  // SPECIALTIES
-  // =====================================================
-
-  specialtiesContainer: {
-    gap: 10,
-    paddingBottom: 2,
-  },
-
-  specialtyButton: {
-    height: 40,
-    paddingHorizontal: 18,
-    borderRadius: 20,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  activeSpecialtyButton: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-
-  specialtyText: {
-    fontSize: 13,
-    color: colors.gray,
-  },
-
-  activeSpecialtyText: {
-    color: colors.white,
-    fontWeight: "600",
-  },
-
-  // =====================================================
-  // DOCTOR CARD
-  // =====================================================
-
-  doctorCard: {
-    minHeight: 124,
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 12,
-    padding: 14,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  doctorImage: {
-    width: 76,
-    height: 94,
-    borderRadius: 12,
-    backgroundColor: colors.inputBackground,
-  },
-
-  doctorInfo: {
-    flex: 1,
-    marginLeft: 14,
-  },
-
-  doctorName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  doctorSpecialty: {
-    fontSize: 13,
-    color: colors.primary,
-    marginTop: 5,
-  },
-
-  doctorHospital: {
-    fontSize: 12,
-    color: colors.gray,
-    marginTop: 4,
-  },
-
-  doctorBottomRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 9,
-  },
-
-  star: {
-    fontSize: 15,
-    color: "#F5A623",
-  },
-
-  rating: {
-    fontSize: 12,
-    color: colors.text,
-    marginLeft: 4,
-    fontWeight: "600",
-  },
-
-  experience: {
-    fontSize: 12,
-    color: colors.gray,
-    marginLeft: 12,
-  },
-
-  arrow: {
-    fontSize: 28,
-    color: colors.gray,
-    marginLeft: 8,
-  },
-
-  // =====================================================
-  // HOSPITAL CARD
-  // =====================================================
-
-  hospitalCard: {
-    minHeight: 120,
-    backgroundColor: colors.white,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: 12,
-    padding: 14,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  hospitalImage: {
-    width: 82,
-    height: 82,
-    borderRadius: 12,
-    backgroundColor: colors.inputBackground,
-  },
-
-  hospitalInfo: {
-    flex: 1,
-    marginLeft: 14,
-  },
-
-  hospitalName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  hospitalSpecialty: {
-    fontSize: 13,
-    color: colors.primary,
-    marginTop: 5,
-  },
-
-  hospitalLocation: {
-    fontSize: 12,
-    color: colors.gray,
-    marginTop: 4,
-  },
-
-  hospitalBottomRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-  },
-
-  doctorCount: {
-    fontSize: 12,
-    color: colors.gray,
-    marginLeft: 12,
-  },
-
-  // =====================================================
-  // EMPTY
-  // =====================================================
-
-  emptyCard: {
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 25,
-    alignItems: "center",
-    marginBottom: 10,
-  },
-
-  emptyTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  emptyText: {
-    fontSize: 12,
-    color: colors.gray,
-    marginTop: 5,
-  },
-
-  // =====================================================
-  // DOCTOR DETAILS
-  // =====================================================
-
-  detailsContent: {
-    paddingBottom: 35,
-  },
-
-  backButton: {
-    height: 52,
-    justifyContent: "center",
-    paddingHorizontal: 20,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-
-  backText: {
-    fontSize: 15,
-    color: colors.primary,
-    fontWeight: "600",
-  },
-
-  detailsImage: {
-    width: "100%",
-    height: 300,
-    backgroundColor: colors.inputBackground,
-  },
-
-  detailsHeader: {
-    backgroundColor: colors.white,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-
-  detailsName: {
-    fontSize: 25,
-    fontWeight: "700",
-    color: colors.darkBlue,
-  },
-
-  detailsSpecialty: {
-    fontSize: 15,
-    color: colors.primary,
-    marginTop: 6,
-    fontWeight: "600",
-  },
-
-  detailsHospital: {
-    fontSize: 13,
-    color: colors.gray,
-    marginTop: 5,
-  },
-
-  // =====================================================
-  // RATING CARD
-  // =====================================================
-
-  ratingCard: {
-    marginHorizontal: 20,
-    marginTop: 18,
-    paddingVertical: 18,
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-  },
-
-  ratingItem: {
-    flex: 1,
-    alignItems: "center",
-  },
-
-  ratingValue: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  ratingLabel: {
-    fontSize: 11,
-    color: colors.gray,
-    marginTop: 5,
-  },
-
-  verticalLine: {
-    width: 1,
-    height: 35,
-    backgroundColor: colors.border,
-  },
-
-  // =====================================================
-  // ABOUT
-  // =====================================================
-
-  detailsSectionTitle: {
-    fontSize: 19,
-    fontWeight: "700",
-    color: colors.darkBlue,
-    marginHorizontal: 20,
-    marginTop: 25,
-    marginBottom: 10,
-  },
-
-  aboutCard: {
-    marginHorizontal: 20,
-    padding: 16,
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-
-  aboutText: {
-    fontSize: 13,
-    color: colors.gray,
-    lineHeight: 21,
-  },
-
-  // =====================================================
-  // INFO
-  // =====================================================
-
-  infoCard: {
-    marginHorizontal: 20,
-    padding: 16,
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-
-  infoTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  infoText: {
-    fontSize: 12,
-    color: colors.gray,
-    marginTop: 5,
-  },
-
-  // =====================================================
-  // AVAILABILITY
-  // =====================================================
-
-  availabilityCard: {
-    marginHorizontal: 20,
-    padding: 16,
-    backgroundColor: colors.white,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  availabilityLabel: {
-    fontSize: 13,
-    color: colors.text,
-    fontWeight: "600",
-  },
-
-  availabilityTime: {
-    fontSize: 12,
-    color: colors.primary,
-    fontWeight: "600",
-  },
-
-  // =====================================================
-  // BOOK APPOINTMENT
-  // =====================================================
-
-  bookButton: {
-    height: 54,
-    marginHorizontal: 20,
-    marginTop: 25,
-    backgroundColor: colors.primary,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  bookButtonText: {
-    color: colors.white,
-    fontSize: 15,
-    fontWeight: "700",
-  },
-});
