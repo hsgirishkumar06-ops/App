@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 
 import {
-  Alert,
   FlatList,
   Image,
   KeyboardAvoidingView,
   Linking,
+  Modal,
   Platform,
   SafeAreaView,
   StyleSheet,
@@ -26,6 +26,8 @@ type Message = {
   time: string;
 };
 
+type PopupType = "success" | "warning" | "confirm";
+
 const doctorImage =
   "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80";
 
@@ -40,8 +42,33 @@ export default function ChatScreen() {
       },
     ]);
 
-  const [message, setMessage] =
+  const [message, setMessage] = useState("");
+
+  // =====================================================
+  // CUSTOM POPUP STATE
+  // =====================================================
+
+  const [popupVisible, setPopupVisible] =
+    useState(false);
+
+  const [popupTitle, setPopupTitle] =
     useState("");
+
+  const [popupMessage, setPopupMessage] =
+    useState("");
+
+  const [popupButtonText, setPopupButtonText] =
+    useState("Continue");
+
+  const [popupType, setPopupType] =
+    useState<PopupType>("success");
+
+  const [popupConfirmAction, setPopupConfirmAction] =
+    useState<(() => void) | null>(null);
+
+  // =====================================================
+  // CURRENT TIME
+  // =====================================================
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString([], {
@@ -50,9 +77,48 @@ export default function ChatScreen() {
     });
   };
 
-  /* =========================
-     SEND MESSAGE
-  ========================= */
+  // =====================================================
+  // CUSTOM POPUP FUNCTIONS
+  // =====================================================
+
+  const showPopup = (
+    title: string,
+    message: string,
+    buttonText: string = "Continue",
+    type: PopupType = "success",
+    confirmAction?: () => void
+  ) => {
+    setPopupTitle(title);
+    setPopupMessage(message);
+    setPopupButtonText(buttonText);
+    setPopupType(type);
+
+    setPopupConfirmAction(
+      () => confirmAction || null
+    );
+
+    setPopupVisible(true);
+  };
+
+  const closePopup = () => {
+    setPopupVisible(false);
+    setPopupConfirmAction(null);
+  };
+
+  const handlePopupConfirm = () => {
+    const action = popupConfirmAction;
+
+    setPopupVisible(false);
+    setPopupConfirmAction(null);
+
+    if (action) {
+      action();
+    }
+  };
+
+  // =====================================================
+  // SEND MESSAGE
+  // =====================================================
 
   const sendMessage = () => {
     const trimmedMessage =
@@ -77,56 +143,53 @@ export default function ChatScreen() {
     setMessage("");
   };
 
-  /* =========================
-     PHONE CALL
-  ========================= */
+  // =====================================================
+  // PHONE CALL
+  // =====================================================
 
   const makePhoneCall = () => {
-    Alert.alert(
+    showPopup(
       "Phone Call",
       "Start a phone call with Dr. John Smith?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Call",
-          onPress: () => {
-            Linking.openURL(
-              "tel:+919999999999"
-            );
-          },
-        },
-      ]
+      "Call",
+      "confirm",
+      () => {
+        Linking.openURL(
+          "tel:+919999999999"
+        );
+      }
     );
   };
 
-  /* =========================
-     VIDEO CALL
-  ========================= */
+  // =====================================================
+  // VIDEO CALL
+  // =====================================================
 
   const startVideoCall = () => {
-    Alert.alert(
+    showPopup(
       "Video Call",
-      "Starting video call with Dr. John Smith..."
+      "Starting video call with Dr. John Smith...",
+      "Continue",
+      "success"
     );
   };
 
-  /* =========================
-     VOICE MESSAGE
-  ========================= */
+  // =====================================================
+  // VOICE MESSAGE
+  // =====================================================
 
   const sendVoiceMessage = () => {
-    Alert.alert(
+    showPopup(
       "Voice Message",
-      "Voice message recording will start here."
+      "Voice message recording will start here.",
+      "Continue",
+      "success"
     );
   };
 
-  /* =========================
-     MESSAGE ITEM
-  ========================= */
+  // =====================================================
+  // MESSAGE ITEM
+  // =====================================================
 
   const renderMessage = ({
     item,
@@ -185,6 +248,26 @@ export default function ChatScreen() {
     );
   };
 
+  // =====================================================
+  // POPUP ICON
+  // =====================================================
+
+  const getPopupIcon = () => {
+    if (popupType === "warning") {
+      return "alert-circle-outline";
+    }
+
+    if (popupType === "confirm") {
+      return "help-circle-outline";
+    }
+
+    return "checkmark";
+  };
+
+  // =====================================================
+  // MAIN UI
+  // =====================================================
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -195,13 +278,11 @@ export default function ChatScreen() {
             : undefined
         }
       >
-
-        {/* =========================
+        {/* =================================================
             DOCTOR HEADER
-        ========================= */}
+        ================================================= */}
 
         <View style={styles.header}>
-
           <Image
             source={{
               uri: doctorImage,
@@ -259,12 +340,11 @@ export default function ChatScreen() {
               color={colors.blue}
             />
           </TouchableOpacity>
-
         </View>
 
-        {/* =========================
+        {/* =================================================
             CHAT AREA
-        ========================= */}
+        ================================================= */}
 
         <View
           style={styles.chatContainer}
@@ -287,12 +367,11 @@ export default function ChatScreen() {
           />
         </View>
 
-        {/* =========================
+        {/* =================================================
             MESSAGE INPUT
-        ========================= */}
+        ================================================= */}
 
         <View style={styles.inputArea}>
-
           {/* MICROPHONE */}
 
           <TouchableOpacity
@@ -346,18 +425,125 @@ export default function ChatScreen() {
               color={colors.white}
             />
           </TouchableOpacity>
-
         </View>
-
       </KeyboardAvoidingView>
+
+      {/* =================================================
+          CUSTOM POPUP
+      ================================================= */}
+
+      <Modal
+        visible={popupVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closePopup}
+      >
+        <View style={styles.popupOverlay}>
+          <View
+            style={styles.popupContainer}
+          >
+            {/* POPUP ICON */}
+
+            <View style={styles.popupIcon}>
+              <Ionicons
+                name={getPopupIcon()}
+                size={34}
+                color={colors.white}
+              />
+            </View>
+
+            {/* POPUP TITLE */}
+
+            <Text style={styles.popupTitle}>
+              {popupTitle}
+            </Text>
+
+            {/* POPUP MESSAGE */}
+
+            <Text
+              style={styles.popupMessage}
+            >
+              {popupMessage}
+            </Text>
+
+            {/* POPUP BUTTONS */}
+
+            {popupType === "confirm" ? (
+              <View
+                style={
+                  styles.popupButtonRow
+                }
+              >
+                {/* NO */}
+
+                <TouchableOpacity
+                  style={
+                    styles.popupCancelButton
+                  }
+                  onPress={closePopup}
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={
+                      styles.popupCancelButtonText
+                    }
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+
+                {/* YES */}
+
+                <TouchableOpacity
+                  style={
+                    styles.popupConfirmButton
+                  }
+                  onPress={
+                    handlePopupConfirm
+                  }
+                  activeOpacity={0.8}
+                >
+                  <Text
+                    style={
+                      styles.popupConfirmButtonText
+                    }
+                  >
+                    {popupButtonText}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={styles.popupButton}
+                onPress={
+                  handlePopupConfirm
+                }
+                activeOpacity={0.8}
+              >
+                <Text
+                  style={
+                    styles.popupButtonText
+                  }
+                >
+                  {popupButtonText}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
 
+// =====================================================
+// STYLES
+// =====================================================
+
 const styles = StyleSheet.create({
-  /* =========================
-     MAIN
-  ========================= */
+  // ===================================================
+  // MAIN
+  // ===================================================
 
   safeArea: {
     flex: 1,
@@ -371,98 +557,73 @@ const styles = StyleSheet.create({
       colors.background,
   },
 
-  /* =========================
-     HEADER
-  ========================= */
+  // ===================================================
+  // HEADER
+  // ===================================================
 
   header: {
     height: 64,
-
     backgroundColor:
       colors.white,
-
     flexDirection: "row",
-
     alignItems: "center",
-
     paddingHorizontal: 12,
-
     borderBottomWidth: 1,
-
     borderBottomColor:
       colors.border,
   },
 
   doctorImage: {
     width: 46,
-
     height: 46,
-
     borderRadius: 23,
   },
 
   doctorInfo: {
     marginLeft: 10,
-
     flex: 1,
-
     justifyContent: "center",
   },
 
   doctorName: {
     fontSize: 17,
-
     lineHeight: 21,
-
     fontWeight: "700",
-
     color: colors.darkBlue,
   },
 
   statusContainer: {
     flexDirection: "row",
-
     alignItems: "center",
-
     marginTop: 2,
   },
 
   onlineDot: {
     width: 7,
-
     height: 7,
-
     borderRadius: 4,
-
     backgroundColor:
       colors.success,
-
     marginRight: 5,
   },
 
   onlineText: {
     fontSize: 13,
-
     lineHeight: 16,
-
     color: colors.gray,
   },
 
   headerButton: {
     width: 38,
-
     height: 38,
-
     alignItems: "center",
-
     justifyContent: "center",
-
     marginLeft: 2,
   },
 
-  /* =========================
-     CHAT
-  ========================= */
+  // ===================================================
+  // CHAT
+  // ===================================================
 
   chatContainer: {
     flex: 1,
@@ -470,17 +631,13 @@ const styles = StyleSheet.create({
 
   messageList: {
     paddingHorizontal: 12,
-
     paddingTop: 20,
-
     paddingBottom: 15,
   },
 
   messageRow: {
     flexDirection: "row",
-
     alignItems: "flex-end",
-
     marginBottom: 14,
   },
 
@@ -490,48 +647,36 @@ const styles = StyleSheet.create({
 
   smallDoctorImage: {
     width: 34,
-
     height: 34,
-
     borderRadius: 17,
-
     marginRight: 8,
   },
 
   messageBubble: {
     maxWidth: "78%",
-
     paddingHorizontal: 15,
-
     paddingVertical: 10,
-
     borderRadius: 16,
   },
 
   doctorBubble: {
     backgroundColor:
       colors.white,
-
     borderWidth: 1,
-
     borderColor:
       colors.border,
-
     borderBottomLeftRadius: 4,
   },
 
   userBubble: {
     backgroundColor:
       colors.blue,
-
     borderBottomRightRadius: 4,
   },
 
   messageText: {
     fontSize: 15,
-
     lineHeight: 21,
-
     color: colors.text,
   },
 
@@ -541,102 +686,179 @@ const styles = StyleSheet.create({
 
   messageTime: {
     fontSize: 10,
-
     color: colors.gray,
-
     marginTop: 4,
-
     textAlign: "right",
   },
 
   userMessageTime: {
     color: colors.white,
-
     opacity: 0.8,
   },
 
-  /* =========================
-     INPUT AREA
-  ========================= */
+  // ===================================================
+  // INPUT AREA
+  // ===================================================
 
   inputArea: {
     minHeight: 68,
-
     backgroundColor:
       colors.white,
-
     borderTopWidth: 1,
-
     borderTopColor:
       colors.border,
-
     flexDirection: "row",
-
     alignItems: "center",
-
     paddingHorizontal: 10,
-
     paddingVertical: 8,
   },
 
   micButton: {
     width: 42,
-
     height: 48,
-
     alignItems: "center",
-
     justifyContent: "center",
-
     marginRight: 4,
   },
 
   inputContainer: {
     flex: 1,
-
     height: 50,
-
     backgroundColor:
       colors.inputBackground,
-
     borderRadius: 25,
-
     justifyContent: "center",
-
     paddingHorizontal: 16,
-
     marginRight: 8,
   },
 
   input: {
     height: 50,
-
     fontSize: 15,
-
     color: colors.text,
-
     paddingTop: 0,
-
     paddingBottom: 0,
   },
 
   sendButton: {
     width: 50,
-
     height: 50,
-
     borderRadius: 25,
-
     backgroundColor:
       colors.blue,
-
     alignItems: "center",
-
     justifyContent: "center",
   },
 
   disabledSendButton: {
     backgroundColor:
       "#AFC4EF",
+  },
+
+  // ===================================================
+  // CUSTOM POPUP
+  // ===================================================
+
+  popupOverlay: {
+    flex: 1,
+    backgroundColor:
+      "rgba(0,0,0,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+
+  popupContainer: {
+    width: "100%",
+    maxWidth: 400,
+    backgroundColor:
+      colors.white,
+    borderRadius: 24,
+    paddingHorizontal: 32,
+    paddingTop: 32,
+    paddingBottom: 32,
+    alignItems: "center",
+  },
+
+  popupIcon: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+    backgroundColor:
+      colors.blue,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 22,
+  },
+
+  popupTitle: {
+    fontSize: 23,
+    fontWeight: "700",
+    color: colors.darkBlue,
+    textAlign: "center",
+    lineHeight: 29,
+  },
+
+  popupMessage: {
+    fontSize: 14,
+    color: "#888888",
+    textAlign: "center",
+    lineHeight: 20,
+    marginTop: 10,
+    marginBottom: 24,
+  },
+
+  popupButton: {
+    width: "100%",
+    height: 52,
+    borderRadius: 26,
+    backgroundColor:
+      colors.blue,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  popupButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  popupButtonRow: {
+    width: "100%",
+    flexDirection: "row",
+    gap: 10,
+  },
+
+  popupCancelButton: {
+    flex: 1,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 1,
+    borderColor: "#D9D9D9",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  popupCancelButtonText: {
+    color: colors.gray,
+    fontSize: 15,
+    fontWeight: "600",
+  },
+
+  popupConfirmButton: {
+    flex: 1,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor:
+      colors.blue,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  popupConfirmButtonText: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: "700",
   },
 });

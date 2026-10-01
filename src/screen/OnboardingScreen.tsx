@@ -3,13 +3,10 @@ import {
   SafeAreaView,
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Image,
   Dimensions,
 } from "react-native";
-
-import { Ionicons } from "@expo/vector-icons";
 
 import CustomButton from "../components/CustomButton";
 import colors from "../theme/theme";
@@ -46,16 +43,13 @@ const slides = [
 function OnboardingScreen({
   goToLogin,
 }: Props) {
-  const [current, setCurrent] =
-    useState(0);
+  const [current, setCurrent] = useState(0);
 
   const slide = slides[current];
 
-  const previousSlide = () => {
-    if (current > 0) {
-      setCurrent(current - 1);
-    }
-  };
+  // =====================================================
+  // CONTINUE
+  // =====================================================
 
   const handleContinue = () => {
     if (current < slides.length - 1) {
@@ -69,44 +63,10 @@ function OnboardingScreen({
     <SafeAreaView style={styles.container}>
       <View style={styles.screen}>
 
-        {/* TOP BAR */}
-        <View style={styles.topBar}>
+        {/* =================================================
+            LOGO
+        ================================================= */}
 
-          <TouchableOpacity
-            style={styles.topBack}
-            onPress={previousSlide}
-            disabled={current === 0}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={25}
-              color={
-                current === 0
-                  ? "#C8D3E3"
-                  : colors.darkBlue
-              }
-            />
-          </TouchableOpacity>
-
-          <View style={styles.topRight}>
-
-            <Text style={styles.page}>
-              {current + 1}/3
-            </Text>
-
-            <TouchableOpacity
-              onPress={goToLogin}
-            >
-              <Text style={styles.skip}>
-                Skip
-              </Text>
-            </TouchableOpacity>
-
-          </View>
-
-        </View>
-
-        {/* LOGO */}
         <View style={styles.logoContainer}>
           <Image
             source={require("../../assets/logo.png")}
@@ -114,12 +74,13 @@ function OnboardingScreen({
           />
         </View>
 
-        {/* IMAGE */}
+        {/* =================================================
+            IMAGE
+        ================================================= */}
+
         <View style={styles.imageContainer}>
 
-          <View
-            style={styles.backgroundCircle}
-          />
+          <View style={styles.backgroundCircle} />
 
           <Image
             source={slide.image}
@@ -128,17 +89,26 @@ function OnboardingScreen({
 
         </View>
 
-        {/* TITLE */}
+        {/* =================================================
+            TITLE
+        ================================================= */}
+
         <Text style={styles.title}>
           {slide.title}
         </Text>
 
-        {/* DESCRIPTION */}
+        {/* =================================================
+            DESCRIPTION
+        ================================================= */}
+
         <Text style={styles.description}>
           {slide.description}
         </Text>
 
-        {/* DOTS */}
+        {/* =================================================
+            DOTS
+        ================================================= */}
+
         <View style={styles.dots}>
 
           {slides.map((_, index) => (
@@ -154,66 +124,19 @@ function OnboardingScreen({
 
         </View>
 
-        {/* NAVIGATION */}
+        {/* =================================================
+            CONTINUE BUTTON
+        ================================================= */}
+
         <View style={styles.navigation}>
-
-          {/* PREVIOUS */}
-          <TouchableOpacity
-            style={[
-              styles.previousButton,
-              current === 0 &&
-                styles.disabledButton,
-            ]}
-            onPress={previousSlide}
-            disabled={current === 0}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={21}
-              color={
-                current === 0
-                  ? "#B8C7DB"
-                  : colors.blue
-              }
-            />
-          </TouchableOpacity>
-
-          {/* CONTINUE */}
-          <View style={styles.continueContainer}>
-
-            <CustomButton
-              title={
-                current === slides.length - 1
-                  ? "Get Started"
-                  : "Continue"
-              }
-              icon={
-                current === slides.length - 1
-                  ? "checkmark"
-                  : "arrow-forward"
-              }
-              onPress={handleContinue}
-            />
-
-          </View>
-
-        </View>
-
-        {/* SIGN IN */}
-        <View style={styles.signInRow}>
-
-          <Text style={styles.signInText}>
-            Already have an account?
-          </Text>
-
-          <TouchableOpacity
-            onPress={goToLogin}
-          >
-            <Text style={styles.signInLink}>
-              {" "}Sign In
-            </Text>
-          </TouchableOpacity>
-
+          <CustomButton
+            title={
+              current === slides.length - 1
+                ? "Get Started"
+                : "Continue"
+            }
+            onPress={handleContinue}
+          />
         </View>
 
       </View>
@@ -222,6 +145,11 @@ function OnboardingScreen({
 }
 
 const styles = StyleSheet.create({
+
+  // =====================================================
+  // MAIN
+  // =====================================================
+
   container: {
     flex: 1,
     backgroundColor: colors.background,
@@ -234,39 +162,13 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
 
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingHorizontal: 28,
-    paddingTop: 10,
-  },
-
-  topBack: {
-    width: 40,
-    height: 40,
-    justifyContent: "center",
-  },
-
-  topRight: {
-    alignItems: "flex-end",
-  },
-
-  page: {
-    color: colors.darkBlue,
-    fontSize: 13,
-    fontWeight: "700",
-  },
-
-  skip: {
-    color: colors.darkBlue,
-    fontSize: 13,
-    fontWeight: "600",
-    marginTop: 9,
-  },
+  // =====================================================
+  // LOGO
+  // =====================================================
 
   logoContainer: {
     alignItems: "center",
+    paddingTop: 10,
   },
 
   logo: {
@@ -274,6 +176,10 @@ const styles = StyleSheet.create({
     height: 70,
     resizeMode: "contain",
   },
+
+  // =====================================================
+  // IMAGE
+  // =====================================================
 
   imageContainer: {
     height: Math.min(
@@ -301,6 +207,10 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
   },
 
+  // =====================================================
+  // TITLE
+  // =====================================================
+
   title: {
     color: colors.darkBlue,
     fontSize: 26,
@@ -310,6 +220,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
   },
 
+  // =====================================================
+  // DESCRIPTION
+  // =====================================================
+
   description: {
     color: "#667085",
     fontSize: 13,
@@ -318,6 +232,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 38,
     marginTop: 10,
   },
+
+  // =====================================================
+  // DOTS
+  // =====================================================
 
   dots: {
     flexDirection: "row",
@@ -339,49 +257,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.blue,
   },
 
+  // =====================================================
+  // CONTINUE BUTTON
+  // =====================================================
+
   navigation: {
-    flexDirection: "row",
-    alignItems: "center",
+    width: "100%",
     paddingHorizontal: 28,
     marginTop: 19,
-    gap: 12,
-  },
-
-  previousButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: "#BCD4F5",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  disabledButton: {
-    backgroundColor: "#F3F7FC",
-    borderColor: "#E3EAF3",
-  },
-
-  continueContainer: {
-    flex: 1,
-  },
-
-  signInRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 14,
-  },
-
-  signInText: {
-    color: "#98A2B3",
-    fontSize: 12,
-  },
-
-  signInLink: {
-    color: colors.blue,
-    fontSize: 12,
-    fontWeight: "800",
   },
 });
 

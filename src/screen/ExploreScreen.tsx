@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import {
   Image,
+  Modal,
   SafeAreaView,
   ScrollView,
   Text,
@@ -174,6 +175,9 @@ export default function ExploreScreen() {
   const [selectedDoctor, setSelectedDoctor] =
     useState<Doctor | null>(null);
 
+  // CUSTOM POPUP
+  const [popupVisible, setPopupVisible] = useState(false);
+
   const filteredDoctors = useMemo(() => {
     const searchText = search.trim().toLowerCase();
 
@@ -213,162 +217,200 @@ export default function ExploreScreen() {
 
   if (selectedDoctor) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.detailsContent}
-        >
-          {/* BACK */}
-
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setSelectedDoctor(null)}
-            activeOpacity={0.7}
+      <>
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.detailsContent}
           >
-            <View style={styles.backContent}>
-              <Ionicons
-                name="arrow-back"
-                size={20}
-                color={colors.primary}
-              />
+            {/* BACK */}
 
-              <Text style={styles.backText}>Back</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* DOCTOR IMAGE */}
-
-          <Image
-            source={{
-              uri: selectedDoctor.image,
-            }}
-            style={styles.detailsImage}
-            resizeMode="cover"
-          />
-
-          {/* DOCTOR INFORMATION */}
-
-          <View style={styles.detailsHeader}>
-            <Text style={styles.detailsName}>
-              {selectedDoctor.name}
-            </Text>
-
-            <Text style={styles.detailsSpecialty}>
-              {selectedDoctor.specialty}
-            </Text>
-
-            <Text style={styles.detailsHospital}>
-              {selectedDoctor.hospital}
-            </Text>
-          </View>
-
-          {/* RATING */}
-
-          <View style={styles.ratingCard}>
-            <View style={styles.ratingItem}>
-              <View style={styles.ratingValueRow}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => setSelectedDoctor(null)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.backContent}>
                 <Ionicons
-                  name="star"
-                  size={16}
-                  color="#F5A623"
+                  name="arrow-back"
+                  size={20}
+                  color={colors.primary}
                 />
 
-                <Text style={styles.ratingValue}>
-                  {selectedDoctor.rating}
+                <Text style={styles.backText}>Back</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* DOCTOR IMAGE */}
+
+            <Image
+              source={{
+                uri: selectedDoctor.image,
+              }}
+              style={styles.detailsImage}
+              resizeMode="cover"
+            />
+
+            {/* DOCTOR INFORMATION */}
+
+            <View style={styles.detailsHeader}>
+              <Text style={styles.detailsName}>
+                {selectedDoctor.name}
+              </Text>
+
+              <Text style={styles.detailsSpecialty}>
+                {selectedDoctor.specialty}
+              </Text>
+
+              <Text style={styles.detailsHospital}>
+                {selectedDoctor.hospital}
+              </Text>
+            </View>
+
+            {/* RATING */}
+
+            <View style={styles.ratingCard}>
+              <View style={styles.ratingItem}>
+                <View style={styles.ratingValueRow}>
+                  <Ionicons
+                    name="star"
+                    size={16}
+                    color="#F5A623"
+                  />
+
+                  <Text style={styles.ratingValue}>
+                    {selectedDoctor.rating}
+                  </Text>
+                </View>
+
+                <Text style={styles.ratingLabel}>
+                  Rating
                 </Text>
               </View>
 
-              <Text style={styles.ratingLabel}>
-                Rating
+              <View style={styles.verticalLine} />
+
+              <View style={styles.ratingItem}>
+                <Text style={styles.ratingValue}>
+                  {selectedDoctor.experience}
+                </Text>
+
+                <Text style={styles.ratingLabel}>
+                  Experience
+                </Text>
+              </View>
+
+              <View style={styles.verticalLine} />
+
+              <View style={styles.ratingItem}>
+                <Text style={styles.ratingValue}>
+                  {selectedDoctor.fee}
+                </Text>
+
+                <Text style={styles.ratingLabel}>
+                  Consultation
+                </Text>
+              </View>
+            </View>
+
+            {/* ABOUT */}
+
+            <Text style={styles.detailsSectionTitle}>
+              About Doctor
+            </Text>
+
+            <View style={styles.aboutCard}>
+              <Text style={styles.aboutText}>
+                {selectedDoctor.about}
               </Text>
             </View>
 
-            <View style={styles.verticalLine} />
+            {/* HOSPITAL */}
 
-            <View style={styles.ratingItem}>
-              <Text style={styles.ratingValue}>
-                {selectedDoctor.experience}
+            <Text style={styles.detailsSectionTitle}>
+              Hospital
+            </Text>
+
+            <View style={styles.infoCard}>
+              <Text style={styles.infoTitle}>
+                {selectedDoctor.hospital}
               </Text>
 
-              <Text style={styles.ratingLabel}>
-                Experience
+              <Text style={styles.infoText}>
+                Multi-Specialty Hospital
+              </Text>
+            </View>
+
+            {/* AVAILABLE TIME */}
+
+            <Text style={styles.detailsSectionTitle}>
+              Available Time
+            </Text>
+
+            <View style={styles.availabilityCard}>
+              <Text style={styles.availabilityLabel}>
+                Consultation Hours
+              </Text>
+
+              <Text style={styles.availabilityTime}>
+                {selectedDoctor.availableTime}
               </Text>
             </View>
 
-            <View style={styles.verticalLine} />
+            {/* BOOK APPOINTMENT */}
 
-            <View style={styles.ratingItem}>
-              <Text style={styles.ratingValue}>
-                {selectedDoctor.fee}
+            <TouchableOpacity
+              style={styles.bookButton}
+              activeOpacity={0.8}
+              onPress={() => setPopupVisible(true)}
+            >
+              <Text style={styles.bookButtonText}>
+                Book Appointment
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </SafeAreaView>
+
+        {/* CUSTOM BOOKING POPUP */}
+
+        <Modal
+          visible={popupVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setPopupVisible(false)}
+        >
+          <View style={popupStyles.overlay}>
+            <View style={popupStyles.container}>
+              <View style={popupStyles.icon}>
+                <Ionicons
+                  name="checkmark"
+                  size={36}
+                  color={colors.white}
+                />
+              </View>
+
+              <Text style={popupStyles.title}>
+                Appointment Booking
               </Text>
 
-              <Text style={styles.ratingLabel}>
-                Consultation
+              <Text style={popupStyles.message}>
+                Appointment booking for{" "}
+                {selectedDoctor.name}
               </Text>
+
+              <TouchableOpacity
+                style={popupStyles.button}
+                activeOpacity={0.8}
+                onPress={() => setPopupVisible(false)}
+              >
+                <Text style={popupStyles.buttonText}>
+                  Continue
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
-
-          {/* ABOUT */}
-
-          <Text style={styles.detailsSectionTitle}>
-            About Doctor
-          </Text>
-
-          <View style={styles.aboutCard}>
-            <Text style={styles.aboutText}>
-              {selectedDoctor.about}
-            </Text>
-          </View>
-
-          {/* HOSPITAL */}
-
-          <Text style={styles.detailsSectionTitle}>
-            Hospital
-          </Text>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.infoTitle}>
-              {selectedDoctor.hospital}
-            </Text>
-
-            <Text style={styles.infoText}>
-              Multi-Specialty Hospital
-            </Text>
-          </View>
-
-          {/* AVAILABLE TIME */}
-
-          <Text style={styles.detailsSectionTitle}>
-            Available Time
-          </Text>
-
-          <View style={styles.availabilityCard}>
-            <Text style={styles.availabilityLabel}>
-              Consultation Hours
-            </Text>
-
-            <Text style={styles.availabilityTime}>
-              {selectedDoctor.availableTime}
-            </Text>
-          </View>
-
-          {/* BOOK APPOINTMENT */}
-
-          <TouchableOpacity
-            style={styles.bookButton}
-            activeOpacity={0.8}
-            onPress={() => {
-              alert(
-                `Appointment booking for ${selectedDoctor.name}`
-              );
-            }}
-          >
-            <Text style={styles.bookButtonText}>
-              Book Appointment
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </SafeAreaView>
+        </Modal>
+      </>
     );
   }
 
@@ -424,7 +466,9 @@ export default function ExploreScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.specialtiesContainer}
+          contentContainerStyle={
+            styles.specialtiesContainer
+          }
         >
           {specialties.map((specialty) => {
             const active =
@@ -637,3 +681,70 @@ export default function ExploreScreen() {
     </SafeAreaView>
   );
 }
+
+/* ========================================
+   CUSTOM POPUP STYLES
+======================================== */
+
+const popupStyles = {
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    paddingHorizontal: 24,
+  },
+
+  container: {
+    width: "100%" as const,
+    maxWidth: 400,
+    backgroundColor: colors.white,
+    borderRadius: 24,
+    paddingHorizontal: 32,
+    paddingTop: 32,
+    paddingBottom: 32,
+    alignItems: "center" as const,
+  },
+
+  icon: {
+    width: 78,
+    height: 78,
+    borderRadius: 39,
+    backgroundColor: colors.blue,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    marginBottom: 22,
+  },
+
+  title: {
+    fontSize: 23,
+    fontWeight: "700" as const,
+    color: colors.darkBlue,
+    textAlign: "center" as const,
+    lineHeight: 29,
+  },
+
+  message: {
+    fontSize: 14,
+    color: "#888888",
+    textAlign: "center" as const,
+    lineHeight: 20,
+    marginTop: 10,
+    marginBottom: 24,
+  },
+
+  button: {
+    width: "100%" as const,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: colors.blue,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+  },
+
+  buttonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: "700" as const,
+  },
+};

@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   StyleSheet,
   Text,
   TextInput,
   View,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData,
 } from "react-native";
 
 import CustomButton from "./CustomButton";
@@ -24,25 +26,127 @@ export default function OTPForm({
   onOTPChange,
   onVerifyOTP,
 }: Props) {
+  const inputRefs = useRef<
+    Array<TextInput | null>
+  >([]);
+
+  const otpValues = Array.from(
+    { length: 6 },
+    (_, index) => otp[index] || ""
+  );
+
+  const handleChange = (
+    text: string,
+    index: number
+  ) => {
+    const numbersOnly = text.replace(
+      /[^0-9]/g,
+      ""
+    );
+
+    // Handle pasted OTP
+    if (numbersOnly.length > 1) {
+      const pastedOTP =
+        numbersOnly.slice(0, 6);
+
+      onOTPChange(pastedOTP);
+
+      const nextIndex = Math.min(
+        pastedOTP.length,
+        5
+      );
+
+      inputRefs.current[nextIndex]?.focus();
+
+      return;
+    }
+
+    const newOTP = [...otpValues];
+
+    newOTP[index] = numbersOnly;
+
+    const updatedOTP =
+      newOTP.join("");
+
+    onOTPChange(updatedOTP);
+
+    // Move to next box
+    if (
+      numbersOnly &&
+      index < 5
+    ) {
+      inputRefs.current[
+        index + 1
+      ]?.focus();
+    }
+  };
+
+  const handleKeyPress = (
+    event: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    index: number
+  ) => {
+    if (
+      event.nativeEvent.key === "Backspace"
+    ) {
+      // If current box is empty,
+      // move to previous box
+      if (
+        !otpValues[index] &&
+        index > 0
+      ) {
+        inputRefs.current[
+          index - 1
+        ]?.focus();
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>
         Verification Code
       </Text>
 
-      <TextInput
-        style={[
-          styles.input,
-          error ? styles.errorInput : null,
-        ]}
-        placeholder="Enter 6-digit OTP"
-        placeholderTextColor="#AAAAAA"
-        value={otp}
-        onChangeText={onOTPChange}
-        keyboardType="number-pad"
-        maxLength={6}
-        textAlign="center"
-      />
+      {/* SIX OTP BOXES */}
+
+      <View style={styles.otpContainer}>
+        {otpValues.map((value, index) => (
+          <TextInput
+            key={index}
+            ref={(ref) => {
+              inputRefs.current[index] =
+                ref;
+            }}
+            style={[
+              styles.otpBox,
+              error
+                ? styles.errorInput
+                : null,
+              value
+                ? styles.filledBox
+                : null,
+            ]}
+            value={value}
+            onChangeText={(text) =>
+              handleChange(
+                text,
+                index
+              )
+            }
+            onKeyPress={(event) =>
+              handleKeyPress(
+                event,
+                index
+              )
+            }
+            keyboardType="number-pad"
+            maxLength={1}
+            textAlign="center"
+            selectTextOnFocus
+            autoFocus={index === 0}
+          />
+        ))}
+      </View>
 
       {error ? (
         <Text style={styles.errorText}>
@@ -73,19 +177,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 12,
   },
 
-  input: {
-    height: 52,
+  otpContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  otpBox: {
+    width: 48,
+    height: 54,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,
     backgroundColor: colors.inputBackground,
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: "600",
     color: colors.text,
-    letterSpacing: 6,
-    paddingHorizontal: 15,
+    textAlign: "center",
+  },
+
+  filledBox: {
+    borderColor: colors.primary,
   },
 
   errorInput: {
@@ -95,10 +211,10 @@ const styles = StyleSheet.create({
   errorText: {
     color: colors.error,
     fontSize: 12,
-    marginTop: 5,
+    marginTop: 7,
   },
 
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 22,
   },
 });

@@ -142,7 +142,6 @@ function SignUpScreen({
 
   return (
     <SafeAreaView style={styles.container}>
-
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={
@@ -151,15 +150,11 @@ function SignUpScreen({
             : undefined
         }
       >
-
         <ScrollView
-          contentContainerStyle={
-            styles.scroll
-          }
+          contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-
           <View style={styles.content}>
 
             <BackButton
@@ -177,7 +172,6 @@ function SignUpScreen({
 
             {/* NAME */}
             <View style={styles.field}>
-
               <CustomInput
                 icon="person-outline"
                 placeholder="Full Name"
@@ -198,12 +192,10 @@ function SignUpScreen({
                   {errors.name}
                 </Text>
               ) : null}
-
             </View>
 
             {/* EMAIL */}
             <View style={styles.field}>
-
               <CustomInput
                 icon="mail-outline"
                 placeholder="Email"
@@ -225,12 +217,10 @@ function SignUpScreen({
                   {errors.email}
                 </Text>
               ) : null}
-
             </View>
 
             {/* PHONE */}
             <View style={styles.field}>
-
               <CustomInput
                 icon="call-outline"
                 placeholder="Phone Number"
@@ -257,12 +247,10 @@ function SignUpScreen({
                   {errors.phone}
                 </Text>
               ) : null}
-
             </View>
 
             {/* PASSWORD */}
             <View style={styles.field}>
-
               <PasswordInput
                 placeholder="Password"
                 value={password}
@@ -282,12 +270,10 @@ function SignUpScreen({
                   {errors.password}
                 </Text>
               ) : null}
-
             </View>
 
             {/* CONFIRM PASSWORD */}
             <View style={styles.field}>
-
               <PasswordInput
                 placeholder="Confirm Password"
                 value={confirmPassword}
@@ -307,7 +293,6 @@ function SignUpScreen({
                   {errors.confirm}
                 </Text>
               ) : null}
-
             </View>
 
             {/* TERMS */}
@@ -321,13 +306,12 @@ function SignUpScreen({
                   agree: "",
                 });
               }}
+              activeOpacity={0.7}
             >
-
               <View
                 style={[
                   styles.checkbox,
-                  agree &&
-                    styles.checked,
+                  agree && styles.checked,
                 ]}
               >
                 {agree && (
@@ -343,26 +327,24 @@ function SignUpScreen({
                 I agree to the Terms &
                 Conditions
               </Text>
-
             </TouchableOpacity>
 
             {errors.agree ? (
-              <Text
-                style={styles.agreeError}
-              >
+              <Text style={styles.agreeError}>
                 {errors.agree}
               </Text>
             ) : null}
 
             {/* CREATE ACCOUNT */}
-            <CustomButton
-              title="Create Account"
-              onPress={handleSignup}
-            />
+            <View style={styles.buttonContainer}>
+              <CustomButton
+                title="Create Account"
+                onPress={handleSignup}
+              />
+            </View>
 
             {/* LOGIN */}
             <View style={styles.bottom}>
-
               <Text style={styles.gray}>
                 Already have an account?
               </Text>
@@ -374,13 +356,10 @@ function SignUpScreen({
                   {" "}Sign In
                 </Text>
               </TouchableOpacity>
-
             </View>
 
           </View>
-
         </ScrollView>
-
       </KeyboardAvoidingView>
 
       {/* SUCCESS MODAL */}
@@ -394,7 +373,6 @@ function SignUpScreen({
           goToLogin();
         }}
       />
-
     </SafeAreaView>
   );
 }
@@ -446,11 +424,13 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 
+  /* TERMS & CONDITIONS */
   terms: {
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 3,
+    marginTop: 4,
+    marginBottom: 12,
   },
 
   checkbox: {
@@ -461,6 +441,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
+    flexShrink: 0,
   },
 
   checked: {
@@ -471,15 +452,24 @@ const styles = StyleSheet.create({
     color: "#555555",
     fontSize: 12,
     marginLeft: 8,
+    flex: 1,
   },
 
   agreeError: {
     width: "100%",
     color: colors.error,
     fontSize: 11,
-    marginTop: 3,
+    marginTop: -5,
+    marginBottom: 8,
   },
 
+  /* CREATE ACCOUNT BUTTON */
+  buttonContainer: {
+    width: "100%",
+    marginTop: 0,
+  },
+
+  /* LOGIN */
   bottom: {
     flexDirection: "row",
     marginTop: 18,

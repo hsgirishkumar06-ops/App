@@ -14,7 +14,8 @@
     },
     "plugins": [
       "expo-notifications",
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker"
     ],
     "ios": {
       "supportsTablet": true

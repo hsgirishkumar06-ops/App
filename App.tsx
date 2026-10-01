@@ -58,7 +58,6 @@ type Screen =
 // ========================================
 
 function App() {
-
   // ========================================
   // CURRENT SCREEN
   // ========================================
@@ -78,7 +77,6 @@ function App() {
   // ========================================
 
   useEffect(() => {
-
     registerForPushNotificationsAsync();
 
     const removeNotificationListeners =
@@ -87,7 +85,6 @@ function App() {
     return () => {
       removeNotificationListeners();
     };
-
   }, []);
 
   // ========================================
@@ -115,7 +112,6 @@ function App() {
 
       {screen === "login" && (
         <LoginScreen
-
           goToSignUp={() => {
             setScreen("signup");
           }}
@@ -131,7 +127,6 @@ function App() {
           goToForgotPassword={() => {
             setScreen("forgotPassword");
           }}
-
         />
       )}
 
@@ -153,7 +148,6 @@ function App() {
 
       {screen === "forgotPassword" && (
         <ForgotPasswordScreen
-
           goToLogin={() => {
             setScreen("login");
           }}
@@ -162,17 +156,15 @@ function App() {
             setResetEmail(email);
             setScreen("otp");
           }}
-
         />
       )}
 
       {/* ========================================
-          OTP
+          OTP VERIFICATION
       ======================================== */}
 
       {screen === "otp" && (
         <OTPScreen
-
           email={resetEmail}
 
           goBack={() => {
@@ -182,7 +174,6 @@ function App() {
           goToNewPassword={() => {
             setScreen("newPassword");
           }}
-
         />
       )}
 
@@ -204,7 +195,6 @@ function App() {
 
       {screen === "main" && (
         <BottomTabNavigation
-
           goToLogin={() => {
             setScreen("login");
           }}
@@ -214,7 +204,6 @@ function App() {
               "doctorConsultation"
             );
           }}
-
         />
       )}
 
@@ -224,11 +213,9 @@ function App() {
 
       {screen === "doctorConsultation" && (
         <DoctorConsultationScreen
-
           goBack={() => {
             setScreen("main");
           }}
-
         />
       )}
 
@@ -247,11 +234,9 @@ function App() {
 // ========================================
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
   },
-
 });
 
 export default App;
